@@ -1,0 +1,27 @@
+version: '3.8'
+
+# Development-only Docker Compose
+# Provides PostgreSQL for local development.
+# Do NOT use this file in production.
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: mahalaxmi_pos_db
+    environment:
+      POSTGRES_DB: mahalaxmi_pos
+      POSTGRES_USER: mahalaxmi_user
+      POSTGRES_PASSWORD: dev_password_change_this
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mahalaxmi_user -d mahalaxmi_pos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local

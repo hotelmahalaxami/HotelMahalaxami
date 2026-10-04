@@ -1,0 +1,4 @@
+logging:
+  level:
+    com.mahalaxmi.pos: DEBUG
+    org.springframework.security: INFO
