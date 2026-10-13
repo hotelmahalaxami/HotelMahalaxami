@@ -83,8 +83,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public List<OrderResponse> getOrders(OrderStatus status) {
-        return orderRepository.findOrdersWithItems(status)
-                .stream()
+        List<Order> orders = (status != null)
+                ? orderRepository.findByStatusWithItems(status)
+                : orderRepository.findAllWithItems();
+
+        return orders.stream()
                 .map(OrderResponse::from)
                 .toList();
     }

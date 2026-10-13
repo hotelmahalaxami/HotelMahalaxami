@@ -32,8 +32,19 @@ public class MenuServiceImpl implements MenuService {
     @Override
     public List<MenuItemResponse> getAvailableItems(Long categoryId, String search) {
         String normalizedSearch = (search != null && !search.isBlank()) ? search.trim() : null;
-        return itemRepository.findAvailableItems(categoryId, normalizedSearch)
-                .stream()
+        
+        List<com.mahalaxmi.pos.menu.entity.MenuItem> items;
+        if (categoryId != null && normalizedSearch != null) {
+            items = itemRepository.findAvailableByCategoryAndSearch(categoryId, normalizedSearch);
+        } else if (categoryId != null) {
+            items = itemRepository.findAvailableByCategory(categoryId);
+        } else if (normalizedSearch != null) {
+            items = itemRepository.findAvailableBySearch(normalizedSearch);
+        } else {
+            items = itemRepository.findAllAvailable();
+        }
+
+        return items.stream()
                 .map(MenuItemResponse::from)
                 .toList();
     }

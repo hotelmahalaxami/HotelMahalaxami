@@ -14,13 +14,34 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, Long> {
     @Query("""
         SELECT m FROM MenuItem m
         JOIN FETCH m.category c
-        WHERE m.available = true
-          AND c.active = true
-          AND (:categoryId IS NULL OR c.id = :categoryId)
-          AND (:search IS NULL OR LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%')))
+        WHERE m.available = true AND c.active = true
         ORDER BY c.displayOrder ASC, m.displayOrder ASC, m.name ASC
     """)
-    List<MenuItem> findAvailableItems(
+    List<MenuItem> findAllAvailable();
+
+    @Query("""
+        SELECT m FROM MenuItem m
+        JOIN FETCH m.category c
+        WHERE m.available = true AND c.active = true AND c.id = :categoryId
+        ORDER BY c.displayOrder ASC, m.displayOrder ASC, m.name ASC
+    """)
+    List<MenuItem> findAvailableByCategory(@Param("categoryId") Long categoryId);
+
+    @Query("""
+        SELECT m FROM MenuItem m
+        JOIN FETCH m.category c
+        WHERE m.available = true AND c.active = true AND LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%'))
+        ORDER BY c.displayOrder ASC, m.displayOrder ASC, m.name ASC
+    """)
+    List<MenuItem> findAvailableBySearch(@Param("search") String search);
+
+    @Query("""
+        SELECT m FROM MenuItem m
+        JOIN FETCH m.category c
+        WHERE m.available = true AND c.active = true AND c.id = :categoryId AND LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%'))
+        ORDER BY c.displayOrder ASC, m.displayOrder ASC, m.name ASC
+    """)
+    List<MenuItem> findAvailableByCategoryAndSearch(
             @Param("categoryId") Long categoryId,
             @Param("search") String search
     );

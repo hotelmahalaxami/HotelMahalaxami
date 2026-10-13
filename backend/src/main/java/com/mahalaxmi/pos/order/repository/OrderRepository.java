@@ -25,8 +25,16 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         SELECT DISTINCT o FROM Order o
         LEFT JOIN FETCH o.items i
         LEFT JOIN FETCH o.createdBy
-        WHERE (:status IS NULL OR o.status = :status)
         ORDER BY o.createdAt DESC
     """)
-    List<Order> findOrdersWithItems(@Param("status") OrderStatus status);
+    List<Order> findAllWithItems();
+
+    @Query("""
+        SELECT DISTINCT o FROM Order o
+        LEFT JOIN FETCH o.items i
+        LEFT JOIN FETCH o.createdBy
+        WHERE o.status = :status
+        ORDER BY o.createdAt DESC
+    """)
+    List<Order> findByStatusWithItems(@Param("status") OrderStatus status);
 }
