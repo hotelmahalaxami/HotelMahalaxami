@@ -1,7 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import type { ApiError, ApiException } from '../types/api';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
+const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080').trim();
+const BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

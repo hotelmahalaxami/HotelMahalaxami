@@ -24,6 +24,10 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+app:
+  cors:
+    allowed-origin: ${CORS_ALLOWED_ORIGIN:https://hotel-mahalaxami.vercel.app}
+
 logging:
   level:
     com.mahalaxmi.pos: INFO
