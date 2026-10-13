@@ -69,13 +69,29 @@ public class JwtServiceImpl implements JwtService {
 
     private SecretKey getSigningKey() {
         String secret = appProperties.getJwt().getSecret();
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("JWT secret is not configured");
+        }
+        String trimmedSecret = secret.trim();
         byte[] keyBytes;
         try {
-            // Try decoding as base64 first
-            keyBytes = Base64.getDecoder().decode(secret);
+            byte[] decoded = Base64.getDecoder().decode(trimmedSecret);
+            if (decoded.length >= 32) {
+                keyBytes = decoded;
+            } else {
+                keyBytes = trimmedSecret.getBytes(StandardCharsets.UTF_8);
+            }
         } catch (IllegalArgumentException e) {
-            // Fallback to UTF-8 raw bytes
-            keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+            keyBytes = trimmedSecret.getBytes(StandardCharsets.UTF_8);
+        }
+
+        if (keyBytes.length < 32) {
+            try {
+                java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+                keyBytes = digest.digest(keyBytes);
+            } catch (java.security.NoSuchAlgorithmException e) {
+                throw new IllegalStateException("SHA-256 algorithm not available", e);
+            }
         }
         return Keys.hmacShaKeyFor(keyBytes);
     }

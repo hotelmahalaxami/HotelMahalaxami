@@ -70,4 +70,19 @@ class JwtServiceTest {
         
         assertFalse(shortJwtService.isTokenValid(token, testUser));
     }
+
+    @Test
+    void plainTextOrShortSecret_doesNotThrowWeakKeyException() {
+        // Regression test: previously a 32-char alphanumeric secret was Base64-decoded into 24 bytes (192 bits),
+        // throwing WeakKeyException (HTTP 500) when generating token on login.
+        AppProperties plainProps = new AppProperties();
+        plainProps.getJwt().setSecret("my_plain_secret_key_for_pos_1234");
+        plainProps.getJwt().setExpirationMs(3600000);
+
+        JwtServiceImpl plainJwtService = new JwtServiceImpl(plainProps);
+        String token = assertDoesNotThrow(() -> plainJwtService.generateToken(testUser));
+        assertNotNull(token);
+        assertTrue(plainJwtService.isTokenValid(token, testUser));
+        assertEquals("testuser", plainJwtService.extractUsername(token));
+    }
 }
