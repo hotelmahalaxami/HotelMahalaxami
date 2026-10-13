@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
+import { authService } from '../services/authService';
 import type { ApiException } from '../types/api';
 
 const LoginPage: React.FC = () => {
@@ -12,6 +13,25 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [slowNotice, setSlowNotice] = useState(false);
+
+  // Pre-warm backend and database connection in the background as soon as login page loads
+  useEffect(() => {
+    authService.warmup();
+  }, []);
+
+  // Show helpful hint if server takes more than 4 seconds to respond
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    if (isSubmitting) {
+      timer = setTimeout(() => {
+        setSlowNotice(true);
+      }, 4000);
+    } else {
+      setSlowNotice(false);
+    }
+    return () => clearTimeout(timer);
+  }, [isSubmitting]);
 
   if (isAuthenticated && !authLoading) {
     return <Navigate to="/dashboard" replace />;
@@ -27,6 +47,7 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSlowNotice(false);
     const errors = validate();
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) return;
@@ -40,6 +61,7 @@ const LoginPage: React.FC = () => {
       setError(apiErr.apiError?.message ?? 'Login failed. Please try again.');
     } finally {
       setIsSubmitting(false);
+      setSlowNotice(false);
     }
   };
 
@@ -197,6 +219,11 @@ const LoginPage: React.FC = () => {
                 'Sign in'
               )}
             </button>
+            {slowNotice && (
+              <p className="text-center text-xs text-brand-400 animate-pulse">
+                Server is waking up and connecting to database, please wait a few seconds...
+              </p>
+            )}
           </form>
 
           <p className="mt-8 text-center text-xs text-gray-500">

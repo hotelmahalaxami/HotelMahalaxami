@@ -12,6 +12,7 @@ vi.mock('../../../services/authService', () => ({
     isAuthenticated: vi.fn().mockReturnValue(false),
     getCurrentUser: vi.fn(),
     logout: vi.fn(),
+    warmup: vi.fn(),
   }
 }));
 

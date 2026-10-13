@@ -25,4 +25,12 @@ export const authService = {
   isAuthenticated(): boolean {
     return tokenStore.getToken() !== null;
   },
+
+  async warmup(): Promise<void> {
+    try {
+      await apiClient.get('/api/v1/auth/health', { timeout: 10000 });
+    } catch {
+      // Ignore background warmup failures
+    }
+  },
 };

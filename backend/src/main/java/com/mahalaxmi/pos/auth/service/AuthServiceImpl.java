@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -31,9 +32,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByUsername(request.usernameOrEmail())
-                .or(() -> userRepository.findByEmail(request.usernameOrEmail()))
+        String identifier = request.usernameOrEmail().trim();
+        User user = userRepository.findByUsernameOrEmail(identifier, identifier)
                 .orElse(null);
 
         if (user == null) {

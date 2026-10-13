@@ -39,4 +39,9 @@ public class AuthController {
         UserResponse response = userService.findByUsername(username);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
+
+    @GetMapping("/health")
+    public ResponseEntity<ApiResponse<String>> health() {
+        return ResponseEntity.ok(ApiResponse.ok("UP", "POS backend is online"));
+    }
 }

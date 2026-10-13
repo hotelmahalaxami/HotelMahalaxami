@@ -9,7 +9,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 60000,
 });
 
 // Request interceptor: attach Authorization header if token exists in memory
@@ -39,13 +39,18 @@ apiClient.interceptors.response.use(
       }
     }
 
-    const exception: ApiException = Object.assign(new Error(apiError?.message ?? 'An error occurred'), {
+    const isTimeout = error.code === 'ECONNABORTED' || (error.message && error.message.toLowerCase().includes('timeout'));
+    const defaultMessage = isTimeout
+      ? 'The server is taking longer than expected to respond (waking up). Please wait a moment and try again.'
+      : (error.message || 'An error occurred');
+
+    const exception: ApiException = Object.assign(new Error(apiError?.message ?? defaultMessage), {
       status,
       apiError: apiError ?? {
         timestamp: new Date().toISOString(),
-        status,
-        error: 'Unknown Error',
-        message: error.message,
+        status: isTimeout ? 504 : status,
+        error: isTimeout ? 'Gateway Timeout' : 'Network Error',
+        message: defaultMessage,
         path: '',
       },
     });

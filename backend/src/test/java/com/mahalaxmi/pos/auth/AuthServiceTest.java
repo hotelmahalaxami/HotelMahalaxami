@@ -61,7 +61,7 @@ class AuthServiceTest {
     void login_withValidCredentials_returnsLoginResponse() {
         LoginRequest request = new LoginRequest("testuser", "password123");
 
-        when(userRepository.findByUsername(request.usernameOrEmail())).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail())).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(request.password(), testUser.getPassword())).thenReturn(true);
         when(jwtService.generateToken(testUser)).thenReturn("mocked-jwt-token");
         when(appProperties.getJwt()).thenReturn(jwtProperties);
@@ -79,7 +79,7 @@ class AuthServiceTest {
     void login_withInvalidPassword_throwsAuthenticationException() {
         LoginRequest request = new LoginRequest("testuser", "wrongpassword");
 
-        when(userRepository.findByUsername(request.usernameOrEmail())).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail())).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(request.password(), testUser.getPassword())).thenReturn(false);
 
         assertThrows(AuthenticationException.class, () -> authService.login(request));
@@ -89,8 +89,7 @@ class AuthServiceTest {
     void login_withUnknownUser_throwsAuthenticationException() {
         LoginRequest request = new LoginRequest("unknown", "password123");
 
-        when(userRepository.findByUsername(request.usernameOrEmail())).thenReturn(Optional.empty());
-        when(userRepository.findByEmail(request.usernameOrEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail())).thenReturn(Optional.empty());
 
         assertThrows(AuthenticationException.class, () -> authService.login(request));
     }
@@ -100,7 +99,7 @@ class AuthServiceTest {
         testUser.setEnabled(false);
         LoginRequest request = new LoginRequest("testuser", "password123");
 
-        when(userRepository.findByUsername(request.usernameOrEmail())).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail())).thenReturn(Optional.of(testUser));
 
         assertThrows(AuthenticationException.class, () -> authService.login(request));
     }
@@ -109,7 +108,7 @@ class AuthServiceTest {
     void login_neverLogsPassword() {
         LoginRequest request = new LoginRequest("testuser", "password123");
 
-        when(userRepository.findByUsername(request.usernameOrEmail())).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUsernameOrEmail(request.usernameOrEmail(), request.usernameOrEmail())).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(request.password(), testUser.getPassword())).thenReturn(false);
 
         try {
