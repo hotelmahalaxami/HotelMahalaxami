@@ -21,10 +21,11 @@ const modules = [
   },
   {
     label: 'Billing',
-    description: 'Process payments and print bills',
+    description: 'Process CASH/UPI/CARD payments & print receipts',
     icon: '💳',
-    stage: 'Stage 3',
-    active: false,
+    stage: 'Active',
+    to: '/billing',
+    active: true,
   },
   {
     label: 'Reports',

@@ -40,6 +40,10 @@ public class MenuCategory {
     public MenuCategory() {
     }
 
+    public MenuCategory(String name, int displayOrder) {
+        this(name, displayOrder, true);
+    }
+
     public MenuCategory(String name, int displayOrder, boolean active) {
         this.name = name;
         this.displayOrder = displayOrder;

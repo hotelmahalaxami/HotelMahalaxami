@@ -10,6 +10,7 @@ import type {
   OrderType,
 } from '../types/pos';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { SettleBillModal } from '../features/billing/SettleBillModal';
 
 const TABLE_OPTIONS = [
   'Table 1',
@@ -28,6 +29,7 @@ const PosOrderPage: React.FC = () => {
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [openOrders, setOpenOrders] = useState<Order[]>([]);
+  const [settlingOrder, setSettlingOrder] = useState<Order | null>(null);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -227,6 +229,10 @@ const PosOrderPage: React.FC = () => {
       setEditingOrder(null);
       setCart([]);
       setNotes('');
+
+      if (markReadyForBill) {
+        setSettlingOrder(savedOrder);
+      }
     } catch (err) {
       const apiErr = err as ApiException;
       setErrorMsg(apiErr.apiError?.message ?? 'Failed to save order. Please try again.');
@@ -687,6 +693,24 @@ const PosOrderPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Stage 3 Billing & Payment Settlement Modal */}
+      {settlingOrder && (
+        <SettleBillModal
+          orderId={settlingOrder.id}
+          orderNumber={settlingOrder.orderNumber}
+          tableNumber={settlingOrder.tableNumber}
+          onClose={() => setSettlingOrder(null)}
+          onSettled={async (settledBill) => {
+            const updated = await orderService.getOrders('OPEN');
+            setOpenOrders(updated);
+            if (editingOrder?.id === settledBill.orderId) {
+              clearCurrentOrder();
+            }
+            setSuccessMsg(`Bill ${settledBill.billNumber} settled successfully for ₹${settledBill.finalAmount}!`);
+          }}
+        />
+      )}
     </div>
   );
 };
