@@ -1,11 +1,38 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
 
-const comingSoonModules = [
-  { label: 'Orders', description: 'Take and manage customer orders', icon: '📋', stage: 'Stage 2' },
-  { label: 'Menu', description: 'Manage menu items and categories', icon: '🍽️', stage: 'Stage 2' },
-  { label: 'Billing', description: 'Process payments and print bills', icon: '💳', stage: 'Stage 3' },
-  { label: 'Reports', description: 'Sales reports and analytics', icon: '📊', stage: 'Stage 4' },
+const modules = [
+  {
+    label: 'Orders (POS)',
+    description: 'Fast POS order entry, table selection & live cart',
+    icon: '📋',
+    stage: 'Active',
+    to: '/orders',
+    active: true,
+  },
+  {
+    label: 'Menu',
+    description: 'Browse Mahalaxmi Hotel categories & items',
+    icon: '🍽️',
+    stage: 'Active',
+    to: '/orders',
+    active: true,
+  },
+  {
+    label: 'Billing',
+    description: 'Process payments and print bills',
+    icon: '💳',
+    stage: 'Stage 3',
+    active: false,
+  },
+  {
+    label: 'Reports',
+    description: 'Sales reports and analytics',
+    icon: '📊',
+    stage: 'Stage 4',
+    active: false,
+  },
 ];
 
 const DashboardPage: React.FC = () => {
@@ -14,27 +41,35 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* Welcome header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white">
             Welcome back, {user?.username}!
           </h2>
           <p className="mt-1 text-gray-400">
-            Mahalaxmi Hotel POS — Stage 1: Foundation & Authentication
+            Mahalaxmi Hotel POS — Stage 2: Menu & Order Taking Active
           </p>
         </div>
-        <span
-          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-            user?.role === 'ADMIN'
-              ? 'bg-brand-500/20 text-brand-400 ring-1 ring-brand-500/30'
-              : 'bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/30'
-          }`}
-        >
-          {user?.role}
-        </span>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/orders"
+            className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600"
+          >
+            <span>+ New POS Order</span>
+          </Link>
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+              user?.role === 'ADMIN'
+                ? 'bg-brand-500/20 text-brand-400 ring-1 ring-brand-500/30'
+                : 'bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/30'
+            }`}
+          >
+            {user?.role}
+          </span>
+        </div>
       </div>
 
-      {/* Stage 1 completion card */}
+      {/* Stage 2 active status card */}
       <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-6">
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-green-500/20">
@@ -43,9 +78,11 @@ const DashboardPage: React.FC = () => {
             </svg>
           </div>
           <div>
-            <h3 className="font-semibold text-green-400">Stage 1 Complete — Foundation & Authentication</h3>
+            <h3 className="font-semibold text-green-400">
+              Stage 2 Active — Menu & Order Taking Ready
+            </h3>
             <p className="mt-0.5 text-sm text-gray-400">
-              Authentication system, JWT security, role-based access, and application shell are fully operational.
+              Menu categories, items, and live POS order creation are operational. Click &ldquo;Orders (POS)&rdquo; to take customer orders.
             </p>
           </div>
         </div>
@@ -55,7 +92,7 @@ const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
           { label: 'Authentication', status: 'Active', color: 'green' },
-          { label: 'Database', status: 'Connected', color: 'green' },
+          { label: 'POS Order Terminal', status: 'Online', color: 'green' },
           { label: 'Role', status: user?.role ?? 'Unknown', color: 'brand' },
         ].map((item) => (
           <div key={item.label} className="rounded-xl border border-white/5 bg-surface-light p-4">
@@ -70,25 +107,49 @@ const DashboardPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Coming soon modules */}
+      {/* Modules grid */}
       <div>
         <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Upcoming Modules
+          POS Modules
         </h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {comingSoonModules.map((mod) => (
-            <div
-              key={mod.label}
-              className="relative overflow-hidden rounded-xl border border-white/5 bg-surface-light p-5 opacity-60 cursor-not-allowed"
-            >
-              <div className="absolute right-3 top-3">
-                <span className="rounded bg-white/5 px-1.5 py-0.5 text-xs text-gray-600">{mod.stage}</span>
+          {modules.map((mod) => {
+            if (mod.active && mod.to) {
+              return (
+                <Link
+                  key={mod.label}
+                  to={mod.to}
+                  className="group relative overflow-hidden rounded-xl border border-brand-500/30 bg-surface-light p-5 transition-all hover:border-brand-500 hover:bg-white/[0.04]"
+                >
+                  <div className="absolute right-3 top-3">
+                    <span className="rounded bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-400">
+                      {mod.stage}
+                    </span>
+                  </div>
+                  <div className="text-3xl mb-3">{mod.icon}</div>
+                  <h4 className="font-semibold text-white group-hover:text-brand-400 transition-colors">
+                    {mod.label}
+                  </h4>
+                  <p className="mt-1 text-xs text-gray-400">{mod.description}</p>
+                </Link>
+              );
+            }
+            return (
+              <div
+                key={mod.label}
+                className="relative overflow-hidden rounded-xl border border-white/5 bg-surface-light p-5 opacity-60 cursor-not-allowed"
+              >
+                <div className="absolute right-3 top-3">
+                  <span className="rounded bg-white/5 px-1.5 py-0.5 text-xs text-gray-600">
+                    {mod.stage}
+                  </span>
+                </div>
+                <div className="text-3xl mb-3">{mod.icon}</div>
+                <h4 className="font-semibold text-white">{mod.label}</h4>
+                <p className="mt-1 text-xs text-gray-500">{mod.description}</p>
               </div>
-              <div className="text-3xl mb-3">{mod.icon}</div>
-              <h4 className="font-semibold text-white">{mod.label}</h4>
-              <p className="mt-1 text-xs text-gray-500">{mod.description}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
