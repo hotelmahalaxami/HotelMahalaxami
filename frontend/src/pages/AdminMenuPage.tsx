@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { adminMenuService } from '../services/adminMenuService';
 import type { MenuCategory, MenuItem } from '../types/pos';
 import type { CreateMenuItemRequest, UpdateMenuItemRequest } from '../types/admin';
+import Button from '../components/ui/Button';
+import EmptyState from '../components/ui/EmptyState';
+import Modal from '../components/ui/Modal';
+import Input from '../components/ui/Input';
 
 const AdminMenuPage: React.FC = () => {
   const [categories, setCategories] = useState<MenuCategory[]>([]);
@@ -61,7 +65,7 @@ const AdminMenuPage: React.FC = () => {
 
   const showNotification = (msg: string) => {
     setSuccessMsg(msg);
-    setTimeout(() => setSuccessMsg(null), 3000);
+    setTimeout(() => setSuccessMsg(null), 3500);
   };
 
   // Availability Toggle
@@ -210,74 +214,86 @@ const AdminMenuPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Top Header & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-pos-border rounded-xl p-5 shadow-subtle">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Menu Management</h2>
-          <p className="text-sm text-gray-400 mt-1">
-            Manage items, change prices, toggle availability, and organize categories
+          <h2 className="text-xl font-bold text-pos-text tracking-tight">Menu Management</h2>
+          <p className="text-xs text-pos-muted mt-0.5">
+            Manage recipes, update prices, toggle live stock, and organize dining categories
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          <Button
+            variant="outline"
+            size="md"
             onClick={() => setCategoryModalOpen(true)}
-            className="rounded-lg border border-white/10 bg-surface-card px-4 py-2.5 text-sm font-semibold text-gray-200 hover:bg-white/5 transition-colors"
           >
             + New Category
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
+            size="md"
             onClick={() => openItemModal()}
-            className="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 hover:bg-brand-600 transition-colors"
           >
             + Add Menu Item
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Notifications */}
       {successMsg && (
-        <div className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400 flex items-center justify-between">
-          <span>✓ {successMsg}</span>
-          <button onClick={() => setSuccessMsg(null)} className="text-green-300 hover:text-white">✕</button>
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-emerald-600">✓</span>
+            <span>{successMsg}</span>
+          </div>
+          <button onClick={() => setSuccessMsg(null)} className="text-xs font-semibold text-emerald-700 hover:underline">
+            ✕
+          </button>
         </div>
       )}
       {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400 flex items-center justify-between">
-          <span>⚠ {error}</span>
-          <button onClick={() => setError(null)} className="text-red-300 hover:text-white">✕</button>
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-red-600">⚠</span>
+            <span>{error}</span>
+          </div>
+          <button onClick={() => setError(null)} className="text-xs font-semibold text-red-700 hover:underline">
+            ✕
+          </button>
         </div>
       )}
 
-      {/* Stats Cards */}
+      {/* Stats Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-white/5 bg-surface-light p-4">
-          <p className="text-xs uppercase tracking-wide text-gray-500">Total Items</p>
-          <p className="mt-1 text-2xl font-bold text-white">{items.length}</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <p className="text-xs font-semibold uppercase tracking-wider text-pos-muted">Total Items</p>
+          <p className="mt-1 text-2xl font-bold text-pos-text">{items.length}</p>
         </div>
-        <div className="rounded-xl border border-white/5 bg-surface-light p-4">
-          <p className="text-xs uppercase tracking-wide text-green-400">In Stock</p>
-          <p className="mt-1 text-2xl font-bold text-green-400">{totalInStock}</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">In Stock</p>
+          <p className="mt-1 text-2xl font-bold text-emerald-700">{totalInStock}</p>
         </div>
-        <div className="rounded-xl border border-white/5 bg-surface-light p-4">
-          <p className="text-xs uppercase tracking-wide text-red-400">Sold Out</p>
-          <p className="mt-1 text-2xl font-bold text-red-400">{totalSoldOut}</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <p className="text-xs font-semibold uppercase tracking-wider text-red-700">Sold Out</p>
+          <p className="mt-1 text-2xl font-bold text-red-700">{totalSoldOut}</p>
         </div>
-        <div className="rounded-xl border border-white/5 bg-surface-light p-4">
-          <p className="text-xs uppercase tracking-wide text-brand-400">Categories</p>
-          <p className="mt-1 text-2xl font-bold text-brand-400">{categories.length}</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <p className="text-xs font-semibold uppercase tracking-wider text-forest-800">Categories</p>
+          <p className="mt-1 text-2xl font-bold text-forest-900">{categories.length}</p>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl border border-white/5 bg-surface-light p-4">
-        {/* Category Pills */}
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+        {/* Category Filter Pills */}
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
             onClick={() => setSelectedCategory(null)}
             className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors ${
               selectedCategory === null
-                ? 'bg-brand-500 text-white'
-                : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                ? 'bg-forest text-white shadow-xs'
+                : 'bg-ivory text-pos-muted hover:bg-forest-50 hover:text-pos-text'
             }`}
           >
             All Categories
@@ -288,8 +304,8 @@ const AdminMenuPage: React.FC = () => {
               onClick={() => setSelectedCategory(cat.id)}
               className={`rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-colors ${
                 selectedCategory === cat.id
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                  ? 'bg-forest text-white shadow-xs'
+                  : 'bg-ivory text-pos-muted hover:bg-forest-50 hover:text-pos-text'
               }`}
             >
               {cat.name}
@@ -297,51 +313,60 @@ const AdminMenuPage: React.FC = () => {
           ))}
         </div>
 
-        {/* Search */}
+        {/* Search Input */}
         <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search items..."
-            className="w-full md:w-60 rounded-lg border border-white/10 bg-surface px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-          />
-          <button
-            type="submit"
-            className="rounded-lg bg-surface-card px-3 py-1.5 text-xs font-semibold text-gray-300 hover:bg-white/10"
-          >
+          <div className="relative">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search items..."
+              className="w-full md:w-60 rounded-lg border border-pos-border bg-ivory/50 px-3 py-1.5 text-xs text-pos-text placeholder-pos-muted/60 focus:outline-none focus:border-forest-700 focus:bg-white"
+            />
+          </div>
+          <Button type="submit" variant="forest" size="sm">
             Filter
-          </button>
+          </Button>
         </form>
       </div>
 
       {/* Items Table */}
-      <div className="overflow-hidden rounded-xl border border-white/5 bg-surface-light">
+      <div className="overflow-hidden rounded-xl border border-pos-border bg-white shadow-subtle">
         {isLoading ? (
-          <div className="p-12 text-center text-gray-400">Loading menu items...</div>
+          <div className="p-12 text-center text-xs text-pos-muted">Loading menu items...</div>
         ) : items.length === 0 ? (
-          <div className="p-12 text-center text-gray-400">No menu items found. Click "+ Add Menu Item" to create one.</div>
+          <div className="p-8">
+            <EmptyState
+              title="No menu items found"
+              description="Click '+ Add Menu Item' to create your first dish or recipe."
+              action={
+                <Button variant="primary" size="sm" onClick={() => openItemModal()}>
+                  + Add Menu Item
+                </Button>
+              }
+            />
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-300">
-              <thead className="border-b border-white/5 bg-white/[0.02] text-xs uppercase tracking-wider text-gray-400">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-pos-border bg-ivory text-xs uppercase tracking-wider text-pos-muted font-semibold">
                 <tr>
-                  <th className="px-5 py-3">Item</th>
-                  <th className="px-5 py-3">Category</th>
-                  <th className="px-5 py-3">Price</th>
-                  <th className="px-5 py-3">Type</th>
-                  <th className="px-5 py-3">Availability</th>
-                  <th className="px-5 py-3 text-right">Actions</th>
+                  <th className="px-5 py-3.5">Item</th>
+                  <th className="px-5 py-3.5">Category</th>
+                  <th className="px-5 py-3.5">Price</th>
+                  <th className="px-5 py-3.5">Type</th>
+                  <th className="px-5 py-3.5">Availability</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-pos-border">
                 {items.map((item) => (
-                  <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-5 py-4 font-medium text-white">
+                  <tr key={item.id} className="hover:bg-ivory/40 transition-colors">
+                    <td className="px-5 py-4 font-semibold text-pos-text">
                       <div className="flex items-center gap-2">
                         <span
                           className={`inline-block h-2.5 w-2.5 rounded-full ${
-                            item.isVeg ? 'bg-green-500' : 'bg-red-500'
+                            item.isVeg ? 'bg-emerald-600' : 'bg-red-600'
                           }`}
                           title={item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
                         />
@@ -349,19 +374,19 @@ const AdminMenuPage: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="rounded bg-white/5 px-2 py-1 text-xs text-gray-400">
+                      <span className="rounded-md border border-pos-border bg-ivory px-2 py-0.5 text-[11px] font-medium text-pos-text">
                         {item.categoryName}
                       </span>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white">₹{Number(item.price).toFixed(2)}</span>
+                        <span className="font-bold text-pos-text">₹{Number(item.price).toFixed(2)}</span>
                         <button
                           onClick={() => {
                             setQuickPriceItem(item);
                             setQuickPriceValue(item.price.toString());
                           }}
-                          className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-brand-400 transition-colors"
+                          className="rounded p-1 text-pos-muted hover:bg-forest-50 hover:text-terracotta transition-colors"
                           title="Quick edit price"
                         >
                           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -372,10 +397,10 @@ const AdminMenuPage: React.FC = () => {
                     </td>
                     <td className="px-5 py-4">
                       <span
-                        className={`rounded px-2 py-0.5 text-xs font-medium ${
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${
                           item.isVeg
-                            ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                            : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            : 'bg-red-50 text-red-800 border border-red-200'
                         }`}
                       >
                         {item.isVeg ? 'Veg' : 'Non-Veg'}
@@ -384,40 +409,35 @@ const AdminMenuPage: React.FC = () => {
                     <td className="px-5 py-4">
                       <button
                         onClick={() => handleToggleAvailability(item)}
-                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          item.available ? 'bg-green-500' : 'bg-gray-700'
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border transition-all ${
+                          item.available
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                            : 'bg-red-50 text-red-800 border-red-200 hover:bg-red-100'
                         }`}
-                        title={item.available ? 'Mark as Sold Out' : 'Mark as In Stock'}
+                        title="Click to toggle stock availability"
                       >
                         <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            item.available ? 'translate-x-5' : 'translate-x-0'
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            item.available ? 'bg-emerald-600' : 'bg-red-600'
                           }`}
                         />
-                      </button>
-                      <span className={`ml-2 text-xs font-medium ${item.available ? 'text-green-400' : 'text-gray-500'}`}>
                         {item.available ? 'In Stock' : 'Sold Out'}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => openItemModal(item)}
-                          className="rounded p-1.5 text-gray-400 hover:bg-white/5 hover:text-white transition-colors"
-                          title="Edit Item"
+                          className="rounded-md border border-pos-border bg-white px-2.5 py-1 text-xs font-medium text-pos-text hover:bg-forest-50 hover:text-forest-900 transition-colors"
                         >
-                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
+                          Edit
                         </button>
                         <button
                           onClick={() => handleDeleteItem(item)}
-                          className="rounded p-1.5 text-gray-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
-                          title="Delete / Deactivate"
+                          className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
+                          title="Delete item"
                         >
-                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
+                          Delete
                         </button>
                       </div>
                     </td>
@@ -429,193 +449,207 @@ const AdminMenuPage: React.FC = () => {
         )}
       </div>
 
-      {/* Quick Price Modal */}
-      {quickPriceItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-sm rounded-xl border border-white/10 bg-surface-light p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white">Change Price</h3>
-            <p className="text-xs text-gray-400 mt-1">
-              Update price for <span className="text-white font-medium">{quickPriceItem.name}</span>
-            </p>
-            <form onSubmit={handleQuickPriceSubmit} className="mt-4 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">New Price (₹)</label>
-                <input
-                  type="number"
-                  step="0.5"
-                  min="0"
-                  autoFocus
-                  value={quickPriceValue}
-                  onChange={(e) => setQuickPriceValue(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setQuickPriceItem(null)}
-                  className="rounded-lg px-3 py-1.5 text-xs text-gray-400 hover:bg-white/5"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-lg bg-brand-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-600"
-                >
-                  Update Price
-                </button>
-              </div>
-            </form>
+      {/* Quick Price Edit Modal */}
+      <Modal
+        isOpen={Boolean(quickPriceItem)}
+        onClose={() => setQuickPriceItem(null)}
+        title="Change Price"
+        description={`Update standard menu price for ${quickPriceItem?.name}`}
+        maxWidth="sm"
+      >
+        <form onSubmit={handleQuickPriceSubmit} className="space-y-4">
+          <Input
+            label="New Price (₹)"
+            type="number"
+            step="0.01"
+            min="0"
+            value={quickPriceValue}
+            onChange={(e) => setQuickPriceValue(e.target.value)}
+            placeholder="0.00"
+            autoFocus
+          />
+          <div className="flex items-center justify-end gap-2.5 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setQuickPriceItem(null)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" size="sm">
+              Save Price
+            </Button>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
 
       {/* Add / Edit Menu Item Modal */}
-      {itemModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-md rounded-xl border border-white/10 bg-surface-light p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white">
-              {editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}
-            </h3>
-            <form onSubmit={handleSaveItem} className="mt-4 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">Category</label>
-                <select
-                  value={itemForm.categoryId}
-                  onChange={(e) => setItemForm({ ...itemForm, categoryId: parseInt(e.target.value) })}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white focus:outline-none focus:border-brand-500"
-                >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id} className="bg-surface">
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+      <Modal
+        isOpen={itemModalOpen}
+        onClose={() => setItemModalOpen(false)}
+        title={editingItem ? 'Edit Menu Item' : 'New Menu Item'}
+        description="Configure dish details, category, and pricing"
+        maxWidth="md"
+      >
+        <form onSubmit={handleSaveItem} className="space-y-4">
+          <Input
+            label="Item Name"
+            type="text"
+            required
+            value={itemForm.name}
+            onChange={(e) => setItemForm((p) => ({ ...p, name: e.target.value }))}
+            placeholder="e.g. Special Veg Thali, Chicken Biryani"
+          />
 
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">Item Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Special Veg Thali"
-                  value={itemForm.name}
-                  onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-pos-text uppercase tracking-wider mb-1.5">
+                Category
+              </label>
+              <select
+                value={itemForm.categoryId}
+                onChange={(e) => setItemForm((p) => ({ ...p, categoryId: Number(e.target.value) }))}
+                className="w-full rounded-lg border border-pos-border bg-white px-3 py-2 text-xs font-medium text-pos-text focus:border-forest-700 focus:outline-none"
+              >
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-1">Price (₹)</label>
-                  <input
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    required
-                    placeholder="170"
-                    value={itemForm.price}
-                    onChange={(e) => setItemForm({ ...itemForm, price: e.target.value })}
-                    className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-1">Display Order</label>
-                  <input
-                    type="number"
-                    value={itemForm.displayOrder}
-                    onChange={(e) => setItemForm({ ...itemForm, displayOrder: parseInt(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                  />
-                </div>
-              </div>
+            <Input
+              label="Price (₹)"
+              type="number"
+              step="0.01"
+              min="0"
+              required
+              value={itemForm.price}
+              onChange={(e) => setItemForm((p) => ({ ...p, price: e.target.value }))}
+              placeholder="0.00"
+            />
+          </div>
 
-              <div className="flex items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
-                  <input
-                    type="checkbox"
-                    checked={itemForm.isVeg}
-                    onChange={(e) => setItemForm({ ...itemForm, isVeg: e.target.checked })}
-                    className="rounded border-gray-600 bg-surface text-brand-500 focus:ring-brand-500"
-                  />
-                  <span>Vegetarian</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
-                  <input
-                    type="checkbox"
-                    checked={itemForm.available}
-                    onChange={(e) => setItemForm({ ...itemForm, available: e.target.checked })}
-                    className="rounded border-gray-600 bg-surface text-brand-500 focus:ring-brand-500"
-                  />
-                  <span>In Stock</span>
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4 border-t border-white/5">
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <div>
+              <label className="block text-xs font-semibold text-pos-text uppercase tracking-wider mb-1.5">
+                Dietary Type
+              </label>
+              <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setItemModalOpen(false)}
-                  className="rounded-lg px-4 py-2 text-xs font-medium text-gray-400 hover:bg-white/5"
+                  onClick={() => setItemForm((p) => ({ ...p, isVeg: true }))}
+                  className={`flex-1 rounded-lg border py-1.5 text-xs font-semibold transition-colors ${
+                    itemForm.isVeg
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-800'
+                      : 'border-pos-border bg-white text-pos-muted'
+                  }`}
                 >
-                  Cancel
+                  🟢 Veg
                 </button>
-                <button
-                  type="submit"
-                  className="rounded-lg bg-brand-500 px-5 py-2 text-xs font-semibold text-white shadow hover:bg-brand-600"
-                >
-                  {editingItem ? 'Save Changes' : 'Create Item'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Category Modal */}
-      {categoryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-sm rounded-xl border border-white/10 bg-surface-light p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white">Add Category</h3>
-            <form onSubmit={handleCreateCategory} className="mt-4 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">Category Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Thali, Chicken, Mutton"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">Display Order</label>
-                <input
-                  type="number"
-                  value={newCategoryOrder}
-                  onChange={(e) => setNewCategoryOrder(parseInt(e.target.value) || 0)}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setCategoryModalOpen(false)}
-                  className="rounded-lg px-3 py-1.5 text-xs text-gray-400 hover:bg-white/5"
+                  onClick={() => setItemForm((p) => ({ ...p, isVeg: false }))}
+                  className={`flex-1 rounded-lg border py-1.5 text-xs font-semibold transition-colors ${
+                    !itemForm.isVeg
+                      ? 'border-red-600 bg-red-50 text-red-800'
+                      : 'border-pos-border bg-white text-pos-muted'
+                  }`}
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-lg bg-brand-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-600"
-                >
-                  Create Category
+                  🔴 Non-Veg
                 </button>
               </div>
-            </form>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-pos-text uppercase tracking-wider mb-1.5">
+                Stock Status
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setItemForm((p) => ({ ...p, available: true }))}
+                  className={`flex-1 rounded-lg border py-1.5 text-xs font-semibold transition-colors ${
+                    itemForm.available
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-800'
+                      : 'border-pos-border bg-white text-pos-muted'
+                  }`}
+                >
+                  In Stock
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setItemForm((p) => ({ ...p, available: false }))}
+                  className={`flex-1 rounded-lg border py-1.5 text-xs font-semibold transition-colors ${
+                    !itemForm.available
+                      ? 'border-red-600 bg-red-50 text-red-800'
+                      : 'border-pos-border bg-white text-pos-muted'
+                  }`}
+                >
+                  Sold Out
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-pos-border">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setItemModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" size="sm">
+              {editingItem ? 'Save Changes' : 'Create Item'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Add Category Modal */}
+      <Modal
+        isOpen={categoryModalOpen}
+        onClose={() => setCategoryModalOpen(false)}
+        title="Add Menu Category"
+        description="Create a new classification for items (e.g. Starters, Thalis, Beverages)"
+        maxWidth="sm"
+      >
+        <form onSubmit={handleCreateCategory} className="space-y-4">
+          <Input
+            label="Category Name"
+            type="text"
+            required
+            value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+            placeholder="e.g. Desserts, Beverages"
+            autoFocus
+          />
+          <Input
+            label="Display Order"
+            type="number"
+            value={newCategoryOrder || ''}
+            onChange={(e) => setNewCategoryOrder(Number(e.target.value))}
+            placeholder="e.g. 1, 2, 3"
+          />
+          <div className="flex items-center justify-end gap-2.5 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setCategoryModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" size="sm">
+              Create Category
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

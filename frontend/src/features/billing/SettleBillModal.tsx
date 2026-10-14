@@ -98,31 +98,33 @@ export const SettleBillModal: React.FC<SettleBillModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-surface-light p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-forest-950/60 p-4 backdrop-blur-xs">
+      <div className="w-full max-w-lg rounded-2xl border border-pos-border bg-white p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
         {/* If settled, display the Thermal Receipt directly with Print button */}
         {showReceipt && bill ? (
           <ThermalReceipt bill={bill} onClose={onClose} onPrint={() => window.print()} />
         ) : (
           <div>
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center justify-between border-b border-pos-border pb-4">
               <div>
-                <h3 className="text-lg font-bold text-white">Bill & Settle Payment</h3>
-                <p className="text-xs text-gray-400">
-                  {tableNumber ? `Table ${tableNumber}` : 'Parcel'} • Order #{orderNumber}
+                <h3 className="text-lg font-bold text-pos-text">Bill & Settle Payment</h3>
+                <p className="text-xs text-pos-muted mt-0.5">
+                  {tableNumber ? `Table ${tableNumber}` : 'Parcel'} &bull; Order #{orderNumber}
                 </p>
               </div>
               <button
+                type="button"
                 onClick={onClose}
-                className="rounded-lg p-1.5 text-gray-400 hover:bg-white/5 hover:text-white"
+                className="rounded-lg p-1.5 text-pos-muted hover:bg-forest-50 hover:text-pos-text transition-colors"
+                aria-label="Close dialog"
               >
                 ✕
               </button>
             </div>
 
             {error && (
-              <div className="mt-4 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-400">
+              <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-800 font-medium">
                 {error}
               </div>
             )}
@@ -134,50 +136,50 @@ export const SettleBillModal: React.FC<SettleBillModalProps> = ({
             ) : bill ? (
               <div className="mt-5 space-y-5">
                 {/* Item Summary */}
-                <div className="rounded-xl border border-white/5 bg-surface/60 p-4 space-y-2">
-                  <div className="flex justify-between text-xs text-gray-400 pb-2 border-b border-white/5 font-medium">
-                    <span>Item</span>
+                <div className="rounded-xl border border-pos-border bg-ivory/40 p-4 space-y-2">
+                  <div className="flex justify-between text-xs text-pos-muted pb-2 border-b border-pos-border font-semibold uppercase tracking-wider">
+                    <span>Ordered Item</span>
                     <span>Subtotal</span>
                   </div>
-                  <div className="max-h-36 overflow-y-auto divide-y divide-white/5 space-y-1">
+                  <div className="max-h-36 overflow-y-auto divide-y divide-pos-border space-y-1">
                     {bill.items?.map((item) => (
                       <div key={item.id} className="flex justify-between text-xs py-1.5">
-                        <span className="text-gray-300">
-                          {item.itemName} <span className="text-brand-400">×{item.quantity}</span>
+                        <span className="text-pos-text font-medium">
+                          {item.itemName} <span className="text-terracotta font-bold">×{item.quantity}</span>
                         </span>
-                        <span className="font-semibold text-white">₹{item.subtotal.toFixed(0)}</span>
+                        <span className="font-semibold text-pos-text">₹{item.subtotal.toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Calculation & Optional Discount */}
-                <div className="rounded-xl border border-white/5 bg-surface/60 p-4 space-y-3">
+                <div className="rounded-xl border border-pos-border bg-ivory/50 p-4 space-y-3">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-400">Subtotal:</span>
-                    <span className="font-semibold text-white">₹{bill.subtotal.toFixed(2)}</span>
+                    <span className="text-pos-muted font-medium">Subtotal:</span>
+                    <span className="font-semibold text-pos-text">₹{bill.subtotal.toFixed(2)}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">Discount (₹):</span>
+                    <span className="text-xs text-pos-muted font-medium">Discount (₹):</span>
                     <input
                       type="number"
                       min="0"
                       max={bill.subtotal}
                       value={discount}
                       onChange={(e) => setDiscount(Number(e.target.value))}
-                      className="w-24 rounded border border-white/10 bg-white/5 px-2 py-1 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      className="w-24 rounded-md border border-pos-border bg-white px-2 py-1 text-xs text-pos-text focus:outline-none focus:border-forest-700"
                     />
                     <button
                       type="button"
                       onClick={handleApplyDiscount}
-                      className="rounded bg-white/10 px-2.5 py-1 text-xs text-gray-300 hover:bg-white/20"
+                      className="rounded-md border border-pos-border bg-white px-2.5 py-1 text-xs font-semibold text-pos-text hover:bg-forest-50 transition-colors"
                     >
                       Apply
                     </button>
                   </div>
 
-                  <div className="flex justify-between text-base font-bold border-t border-white/10 pt-2 text-brand-400">
+                  <div className="flex justify-between text-base font-bold border-t border-pos-border pt-2 text-terracotta">
                     <span>Payable Total:</span>
                     <span>₹{bill.finalAmount.toFixed(2)}</span>
                   </div>
@@ -185,7 +187,7 @@ export const SettleBillModal: React.FC<SettleBillModalProps> = ({
 
                 {/* Payment Method Selector */}
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-pos-muted mb-2">
                     Select Payment Mode
                   </label>
                   <div className="grid grid-cols-3 gap-2">
@@ -200,10 +202,10 @@ export const SettleBillModal: React.FC<SettleBillModalProps> = ({
                         key={m.id}
                         type="button"
                         onClick={() => setPaymentMethod(m.id)}
-                        className={`flex flex-col items-center justify-center rounded-xl p-3 border text-sm font-semibold transition-all ${
+                        className={`flex flex-col items-center justify-center rounded-xl p-3 border text-xs font-semibold transition-all ${
                           paymentMethod === m.id
-                            ? 'border-brand-500 bg-brand-500/20 text-brand-400 shadow-lg shadow-brand-500/10'
-                            : 'border-white/10 bg-surface hover:bg-white/5 text-gray-300'
+                            ? 'border-terracotta bg-terracotta-50 text-terracotta-800 shadow-xs ring-1 ring-terracotta'
+                            : 'border-pos-border bg-white hover:bg-ivory text-pos-text'
                         }`}
                       >
                         <span className="text-xl mb-1">{m.icon}</span>
@@ -216,7 +218,7 @@ export const SettleBillModal: React.FC<SettleBillModalProps> = ({
                 {/* Additional Details (UPI Ref / Notes) */}
                 {paymentMethod === 'UPI' && (
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">
+                    <label className="block text-xs font-semibold text-pos-text mb-1">
                       UPI Ref / UTR No. (Optional)
                     </label>
                     <input
@@ -224,7 +226,7 @@ export const SettleBillModal: React.FC<SettleBillModalProps> = ({
                       placeholder="e.g. 429381749182"
                       value={transactionRef}
                       onChange={(e) => setTransactionRef(e.target.value)}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      className="w-full rounded-lg border border-pos-border bg-white px-3 py-2 text-xs text-pos-text focus:outline-none focus:border-forest-700"
                     />
                   </div>
                 )}
@@ -232,10 +234,10 @@ export const SettleBillModal: React.FC<SettleBillModalProps> = ({
                 <div>
                   <input
                     type="text"
-                    placeholder="Bill note (e.g. Customer split bill, complimentary beverage)..."
+                    placeholder="Bill note (e.g. Customer split bill, discount approved)..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                    className="w-full rounded-lg border border-pos-border bg-white px-3 py-2 text-xs text-pos-text placeholder-pos-muted/60 focus:outline-none focus:border-forest-700"
                   />
                 </div>
 
@@ -245,11 +247,11 @@ export const SettleBillModal: React.FC<SettleBillModalProps> = ({
                     type="button"
                     disabled={settling}
                     onClick={handleSettle}
-                    className="w-full rounded-xl bg-brand-500 py-3 text-sm font-bold text-white shadow-lg shadow-brand-500/20 transition-all hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-60"
+                    className="w-full rounded-xl bg-terracotta py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-terracotta-600 focus:outline-none focus:ring-2 focus:ring-terracotta disabled:opacity-60"
                   >
                     {settling ? (
                       <span className="flex items-center justify-center gap-2">
-                        <LoadingSpinner size="sm" />
+                        <LoadingSpinner size="sm" color="white" />
                         Settling Bill...
                       </span>
                     ) : (

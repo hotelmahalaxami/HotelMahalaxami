@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { staffService } from '../services/staffService';
 import type { User, Role } from '../types/auth';
 import type { CreateStaffRequest } from '../types/admin';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import Modal from '../components/ui/Modal';
+import Input from '../components/ui/Input';
+import EmptyState from '../components/ui/EmptyState';
 
 const StaffManagementPage: React.FC = () => {
   const [staffList, setStaffList] = useState<User[]>([]);
@@ -42,7 +47,7 @@ const StaffManagementPage: React.FC = () => {
 
   const showNotification = (msg: string) => {
     setSuccessMsg(msg);
-    setTimeout(() => setSuccessMsg(null), 3000);
+    setTimeout(() => setSuccessMsg(null), 3500);
   };
 
   // Toggle Status
@@ -104,133 +109,151 @@ const StaffManagementPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-pos-border rounded-xl p-5 shadow-subtle">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Staff Management</h2>
-          <p className="text-sm text-gray-400 mt-1">
+          <h2 className="text-xl font-bold text-pos-text tracking-tight">Staff Management</h2>
+          <p className="text-xs text-pos-muted mt-0.5">
             Manage staff accounts, assign roles, toggle login access, and reset passwords
           </p>
         </div>
-        <button
-          onClick={() => setAddModalOpen(true)}
-          className="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 hover:bg-brand-600 transition-colors"
-        >
-          + Add Staff Member
-        </button>
+        <div>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => setAddModalOpen(true)}
+          >
+            + Add Staff Member
+          </Button>
+        </div>
       </div>
 
       {/* Notifications */}
       {successMsg && (
-        <div className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400 flex items-center justify-between">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-800 flex items-center justify-between">
           <span>✓ {successMsg}</span>
-          <button onClick={() => setSuccessMsg(null)} className="text-green-300 hover:text-white">✕</button>
+          <button onClick={() => setSuccessMsg(null)} className="text-emerald-700 hover:underline">✕</button>
         </div>
       )}
       {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400 flex items-center justify-between">
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs font-medium text-red-800 flex items-center justify-between">
           <span>⚠ {error}</span>
-          <button onClick={() => setError(null)} className="text-red-300 hover:text-white">✕</button>
+          <button onClick={() => setError(null)} className="text-red-700 hover:underline">✕</button>
         </div>
       )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-white/5 bg-surface-light p-4">
-          <p className="text-xs uppercase tracking-wide text-gray-500">Total Users</p>
-          <p className="mt-1 text-2xl font-bold text-white">{staffList.length}</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <p className="text-xs font-semibold uppercase tracking-wider text-pos-muted">Total Users</p>
+          <p className="mt-1 text-2xl font-bold text-pos-text">{staffList.length}</p>
         </div>
-        <div className="rounded-xl border border-white/5 bg-surface-light p-4">
-          <p className="text-xs uppercase tracking-wide text-green-400">Active</p>
-          <p className="mt-1 text-2xl font-bold text-green-400">{activeCount}</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Active</p>
+          <p className="mt-1 text-2xl font-bold text-emerald-700">{activeCount}</p>
         </div>
-        <div className="rounded-xl border border-white/5 bg-surface-light p-4">
-          <p className="text-xs uppercase tracking-wide text-red-400">Disabled</p>
-          <p className="mt-1 text-2xl font-bold text-red-400">{disabledCount}</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <p className="text-xs font-semibold uppercase tracking-wider text-red-700">Disabled</p>
+          <p className="mt-1 text-2xl font-bold text-red-700">{disabledCount}</p>
         </div>
-        <div className="rounded-xl border border-white/5 bg-surface-light p-4">
-          <p className="text-xs uppercase tracking-wide text-brand-400">Admins / Staff</p>
-          <p className="mt-1 text-2xl font-bold text-white">
-            <span className="text-brand-400">{adminCount}</span> / <span className="text-blue-400">{staffCount}</span>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <p className="text-xs font-semibold uppercase tracking-wider text-forest-800">Admins / Staff</p>
+          <p className="mt-1 text-2xl font-bold text-pos-text">
+            <span className="text-terracotta">{adminCount}</span> / <span className="text-forest-800">{staffCount}</span>
           </p>
         </div>
       </div>
 
       {/* Staff Table */}
-      <div className="overflow-hidden rounded-xl border border-white/5 bg-surface-light">
+      <div className="overflow-hidden rounded-xl border border-pos-border bg-white shadow-subtle">
         {isLoading ? (
-          <div className="p-12 text-center text-gray-400">Loading staff accounts...</div>
+          <div className="p-12 text-center text-xs text-pos-muted">Loading staff accounts...</div>
         ) : staffList.length === 0 ? (
-          <div className="p-12 text-center text-gray-400">No staff members found.</div>
+          <div className="p-8">
+            <EmptyState
+              title="No staff members found"
+              description="Click '+ Add Staff Member' to create a new POS terminal account."
+              action={
+                <Button variant="primary" size="sm" onClick={() => setAddModalOpen(true)}>
+                  + Add Staff Member
+                </Button>
+              }
+            />
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-300">
-              <thead className="border-b border-white/5 bg-white/[0.02] text-xs uppercase tracking-wider text-gray-400">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-pos-border bg-ivory text-xs uppercase tracking-wider text-pos-muted font-semibold">
                 <tr>
-                  <th className="px-5 py-3">User</th>
-                  <th className="px-5 py-3">Email</th>
-                  <th className="px-5 py-3">Role</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3">Created</th>
-                  <th className="px-5 py-3 text-right">Actions</th>
+                  <th className="px-5 py-3.5">User</th>
+                  <th className="px-5 py-3.5">Email</th>
+                  <th className="px-5 py-3.5">Role</th>
+                  <th className="px-5 py-3.5">Status</th>
+                  <th className="px-5 py-3.5">Created</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-pos-border">
                 {staffList.map((user) => (
-                  <tr key={user.id} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={user.id} className="hover:bg-ivory/40 transition-colors">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500/20 text-brand-400 font-semibold text-sm">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-forest-100 text-forest-800 font-bold text-xs ring-1 ring-forest-200">
                           {user.username?.[0]?.toUpperCase() ?? 'U'}
                         </div>
                         <div>
-                          <p className="font-medium text-white">{user.username}</p>
-                          <p className="text-xs text-gray-500">ID: #{user.id}</p>
+                          <p className="font-semibold text-pos-text">{user.username}</p>
+                          <p className="text-[11px] text-pos-muted">ID: #{user.id}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-gray-300">{user.email}</td>
+                    <td className="px-5 py-4 text-pos-text">{user.email}</td>
                     <td className="px-5 py-4">
-                      <span
-                        className={`rounded px-2.5 py-1 text-xs font-semibold ${
-                          user.role === 'ADMIN'
-                            ? 'bg-brand-500/20 text-brand-400 ring-1 ring-brand-500/30'
-                            : 'bg-blue-500/20 text-blue-400 ring-1 ring-blue-500/30'
-                        }`}
+                      <Badge
+                        variant={user.role === 'ADMIN' ? 'terracotta' : 'forest'}
+                        size="sm"
                       >
                         {user.role}
-                      </span>
+                      </Badge>
                     </td>
                     <td className="px-5 py-4">
-                      <button
-                        onClick={() => handleToggleStatus(user)}
-                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          user.enabled ? 'bg-green-500' : 'bg-gray-700'
-                        }`}
-                        title={user.enabled ? 'Click to Disable Account' : 'Click to Enable Account'}
-                      >
-                        <span
-                          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            user.enabled ? 'translate-x-5' : 'translate-x-0'
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleStatus(user)}
+                          className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                            user.enabled ? 'bg-emerald-600' : 'bg-stone-300'
                           }`}
-                        />
-                      </button>
-                      <span className={`ml-2 text-xs font-medium ${user.enabled ? 'text-green-400' : 'text-gray-500'}`}>
-                        {user.enabled ? 'Active' : 'Disabled'}
-                      </span>
+                          title={user.enabled ? 'Click to Disable Account' : 'Click to Enable Account'}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                              user.enabled ? 'translate-x-4' : 'translate-x-0'
+                            }`}
+                          />
+                        </button>
+                        <span className={`text-xs font-semibold ${user.enabled ? 'text-emerald-700' : 'text-pos-muted'}`}>
+                          {user.enabled ? 'Active' : 'Disabled'}
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-5 py-4 text-xs text-gray-500">
-                      {new Date(user.createdAt).toLocaleDateString()}
+                    <td className="px-5 py-4 text-pos-muted">
+                      {new Date(user.createdAt).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
                     </td>
                     <td className="px-5 py-4 text-right">
-                      <button
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => {
                           setResetModalUser(user);
                           setNewPassword('');
                         }}
-                        className="rounded px-2.5 py-1 text-xs font-semibold text-brand-400 hover:bg-brand-500/10 transition-colors"
                       >
                         Reset Password
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -241,119 +264,105 @@ const StaffManagementPage: React.FC = () => {
       </div>
 
       {/* Add Staff Modal */}
-      {addModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-md rounded-xl border border-white/10 bg-surface-light p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white">Add Staff Member</h3>
-            <form onSubmit={handleCreateStaff} className="mt-4 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">Username</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. waiter_rahul"
-                  value={addForm.username}
-                  onChange={(e) => setAddForm({ ...addForm, username: e.target.value })}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                />
-              </div>
+      <Modal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        title="Add Staff Member"
+        description="Create credentials for a server, cashier, or admin"
+        maxWidth="md"
+      >
+        <form onSubmit={handleCreateStaff} className="space-y-4">
+          <Input
+            label="Username"
+            type="text"
+            required
+            placeholder="e.g. waiter_rahul"
+            value={addForm.username}
+            onChange={(e) => setAddForm({ ...addForm, username: e.target.value })}
+          />
 
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">Email</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="rahul@mahalaxmi.com"
-                  value={addForm.email}
-                  onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                />
-              </div>
+          <Input
+            label="Email"
+            type="email"
+            required
+            placeholder="rahul@mahalaxmi.com"
+            value={addForm.email}
+            onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+          />
 
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">Password</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Minimum 6 characters"
-                  value={addForm.password}
-                  onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                />
-              </div>
+          <Input
+            label="Temporary Password"
+            type="password"
+            required
+            placeholder="Minimum 6 characters"
+            value={addForm.password}
+            onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+          />
 
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">Role</label>
-                <select
-                  value={addForm.role}
-                  onChange={(e) => setAddForm({ ...addForm, role: e.target.value as Role })}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white focus:outline-none focus:border-brand-500"
-                >
-                  <option value="STAFF" className="bg-surface">STAFF (POS & Orders)</option>
-                  <option value="ADMIN" className="bg-surface">ADMIN (Full Access & Reports)</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4 border-t border-white/5">
-                <button
-                  type="button"
-                  onClick={() => setAddModalOpen(false)}
-                  className="rounded-lg px-4 py-2 text-xs font-medium text-gray-400 hover:bg-white/5"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-lg bg-brand-500 px-5 py-2 text-xs font-semibold text-white shadow hover:bg-brand-600"
-                >
-                  Create Account
-                </button>
-              </div>
-            </form>
+          <div>
+            <label className="block text-xs font-semibold text-pos-text uppercase tracking-wider mb-1.5">
+              Role Permission
+            </label>
+            <select
+              value={addForm.role}
+              onChange={(e) => setAddForm({ ...addForm, role: e.target.value as Role })}
+              className="w-full rounded-lg border border-pos-border bg-white px-3 py-2 text-xs font-medium text-pos-text focus:outline-none focus:border-forest-700"
+            >
+              <option value="STAFF">STAFF (Orders, POS & Billing)</option>
+              <option value="ADMIN">ADMIN (Full Control, Menu & Reports)</option>
+            </select>
           </div>
-        </div>
-      )}
+
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-pos-border">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setAddModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" size="sm">
+              Create Account
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Reset Password Modal */}
-      {resetModalUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-sm rounded-xl border border-white/10 bg-surface-light p-6 shadow-2xl">
-            <h3 className="text-lg font-bold text-white">Reset Password</h3>
-            <p className="text-xs text-gray-400 mt-1">
-              Set new password for <span className="text-white font-medium">{resetModalUser.username}</span>
-            </p>
-            <form onSubmit={handleResetPassword} className="mt-4 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-300 mb-1">New Password</label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Enter new password"
-                  autoFocus
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-surface px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setResetModalUser(null)}
-                  className="rounded-lg px-3 py-1.5 text-xs text-gray-400 hover:bg-white/5"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-lg bg-brand-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-brand-600"
-                >
-                  Confirm Reset
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={Boolean(resetModalUser)}
+        onClose={() => setResetModalUser(null)}
+        title="Reset Password"
+        description={resetModalUser ? `Set a new secure password for ${resetModalUser.username}` : ''}
+        maxWidth="sm"
+      >
+        <form onSubmit={handleResetPassword} className="space-y-4">
+          <Input
+            label="New Password"
+            type="password"
+            required
+            placeholder="Enter new password (min. 6 characters)"
+            autoFocus
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+
+          <div className="flex justify-end gap-2.5 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setResetModalUser(null)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" size="sm">
+              Confirm Reset
+            </Button>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
     </div>
   );
 };

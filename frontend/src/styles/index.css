@@ -8,23 +8,32 @@
   }
   
   body {
-    @apply bg-surface text-white antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    @apply bg-ivory text-pos-text antialiased selection:bg-terracotta-100 selection:text-terracotta-800;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #20332F;
+    background-color: #F7F5EF;
+  }
+  
+  /* Visible focus ring styling */
+  :focus-visible {
+    outline: 2px solid #C96F43;
+    outline-offset: 2px;
   }
   
   ::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: transparent;
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-white/10;
+    @apply rounded-full bg-pos-border;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-white/20;
+    @apply bg-forest-300;
   }
 }

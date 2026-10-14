@@ -31,23 +31,23 @@ export const ThermalReceipt: React.FC<ThermalReceiptProps> = ({ bill, onClose, o
   return (
     <div>
       {/* Screen action bar (hidden during print) */}
-      <div className="print:hidden mb-4 flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+      <div className="print:hidden mb-4 flex items-center justify-between gap-3 border-b border-pos-border pb-4">
         <div>
-          <h3 className="text-base font-semibold text-white">Receipt Preview</h3>
-          <p className="text-xs text-gray-400">Ready for 80mm thermal print or A4</p>
+          <h3 className="text-base font-semibold text-pos-text">Receipt Preview</h3>
+          <p className="text-xs text-pos-muted">Ready for 80mm thermal print or A4</p>
         </div>
         <div className="flex items-center gap-2">
           {onClose && (
             <button
               onClick={onClose}
-              className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-medium text-gray-300 hover:bg-white/5"
+              className="rounded-lg border border-pos-border px-3 py-1.5 text-xs font-medium text-pos-text hover:bg-forest-50 transition-colors"
             >
               Close
             </button>
           )}
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 rounded-lg bg-brand-500 px-4 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-brand-600 focus:outline-none"
+            className="flex items-center gap-1.5 rounded-lg bg-terracotta px-4 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-terracotta-600 focus:outline-none transition-colors"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path

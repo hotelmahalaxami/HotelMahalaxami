@@ -3,6 +3,19 @@ import type { BillResponse, BillStatus } from '../types/billing';
 import { billingService } from '../services/billingService';
 import { ThermalReceipt } from '../features/billing/ThermalReceipt';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import EmptyState from '../components/ui/EmptyState';
+import Modal from '../components/ui/Modal';
+
+const formatInr = (amount: number): string => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount || 0);
+};
 
 const BillingHistoryPage: React.FC = () => {
   const [bills, setBills] = useState<BillResponse[]>([]);
@@ -68,72 +81,97 @@ const BillingHistoryPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Page Title & Refresh */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-pos-border rounded-xl p-5 shadow-subtle">
         <div>
-          <h2 className="text-2xl font-bold text-white">Billing & Payments</h2>
-          <p className="text-sm text-gray-400">
-            View settled transactions, daily registers, and reprint thermal receipts
+          <h2 className="text-xl font-bold text-pos-text tracking-tight">Billing & Invoices</h2>
+          <p className="text-xs text-pos-muted mt-0.5">
+            Audit settled registers, manage receipts, and print 80mm thermal bills
           </p>
         </div>
-        <button
-          onClick={loadBills}
-          className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-gray-300 hover:bg-white/10"
-        >
-          🔄 Refresh Register
-        </button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadBills}
+            leftIcon={
+              <svg className="h-3.5 w-3.5 text-forest-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            }
+          >
+            Refresh Register
+          </Button>
+        </div>
       </div>
 
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-xl border border-white/5 bg-surface-light p-4">
-          <p className="text-xs uppercase tracking-wider text-gray-400">Total Settled</p>
-          <p className="mt-1 text-2xl font-extrabold text-white">₹{summary.totalRevenue.toFixed(0)}</p>
-          <p className="mt-0.5 text-xs text-gray-500">{summary.paidCount} bills paid</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-pos-muted">Total Settled</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-forest-50 text-forest-700">
+              ₹
+            </span>
+          </div>
+          <p className="mt-2 text-2xl font-bold text-pos-text">{formatInr(summary.totalRevenue)}</p>
+          <p className="mt-0.5 text-xs text-pos-muted">{summary.paidCount} bills settled</p>
         </div>
 
-        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-          <p className="text-xs uppercase tracking-wider text-emerald-400">Cash Collected</p>
-          <p className="mt-1 text-2xl font-extrabold text-emerald-300">₹{summary.cashTotal.toFixed(0)}</p>
-          <p className="mt-0.5 text-xs text-emerald-500">Physical drawer cash</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800">Cash Register</span>
+            <span className="h-2 w-2 rounded-full bg-emerald-600" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-emerald-800">{formatInr(summary.cashTotal)}</p>
+          <p className="mt-0.5 text-xs text-pos-muted">Drawer cash payments</p>
         </div>
 
-        <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
-          <p className="text-xs uppercase tracking-wider text-blue-400">UPI / QR Received</p>
-          <p className="mt-1 text-2xl font-extrabold text-blue-300">₹{summary.upiTotal.toFixed(0)}</p>
-          <p className="mt-0.5 text-xs text-blue-500">PhonePe / GPay scanner</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-terracotta-800">UPI / QR Received</span>
+            <span className="h-2 w-2 rounded-full bg-terracotta" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-terracotta-800">{formatInr(summary.upiTotal)}</p>
+          <p className="mt-0.5 text-xs text-pos-muted">QR code & online transfers</p>
         </div>
 
-        <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-4">
-          <p className="text-xs uppercase tracking-wider text-purple-400">Card Swiped</p>
-          <p className="mt-1 text-2xl font-extrabold text-purple-300">₹{summary.cardTotal.toFixed(0)}</p>
-          <p className="mt-0.5 text-xs text-purple-500">POS machine card</p>
+        <div className="rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-wider text-forest-800">Card Swiped</span>
+            <span className="h-2 w-2 rounded-full bg-forest-600" />
+          </div>
+          <p className="mt-2 text-2xl font-bold text-forest-900">{formatInr(summary.cardTotal)}</p>
+          <p className="mt-0.5 text-xs text-pos-muted">POS card terminal</p>
         </div>
       </div>
 
-      {/* Controls Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-white/5 bg-surface-light p-4">
-        {/* Search */}
-        <div className="w-full sm:w-72">
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-pos-border bg-white p-4 shadow-subtle">
+        {/* Search Input */}
+        <div className="w-full sm:w-72 relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-pos-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <input
             type="text"
-            placeholder="Search bill no, table, order..."
+            placeholder="Search bill number, table, order..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className="w-full rounded-lg border border-pos-border bg-ivory/50 pl-9 pr-3 py-1.5 text-xs text-pos-text placeholder-pos-muted/60 focus:outline-none focus:border-forest-700 focus:bg-white"
           />
         </div>
 
         {/* Filter Pills */}
-        <div className="flex gap-2">
+        <div className="flex items-center gap-1.5">
           {(['ALL', 'PAID', 'UNPAID'] as const).map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 statusFilter === st
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-white/5 text-gray-400 hover:text-white'
+                  ? 'bg-forest text-white shadow-xs'
+                  : 'bg-ivory text-pos-muted hover:bg-forest-50 hover:text-pos-text'
               }`}
             >
               {st}
@@ -143,98 +181,106 @@ const BillingHistoryPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-medium text-red-800">
           {error}
         </div>
       )}
 
       {/* Bills Table */}
-      <div className="rounded-xl border border-white/5 bg-surface-light overflow-hidden">
+      <div className="rounded-xl border border-pos-border bg-white shadow-subtle overflow-hidden">
         {loading ? (
           <div className="flex h-64 items-center justify-center">
             <LoadingSpinner size="lg" />
           </div>
         ) : filteredBills.length === 0 ? (
-          <div className="flex h-64 flex-col items-center justify-center text-gray-500">
-            <p className="text-3xl mb-2">🧾</p>
-            <p className="text-sm">No bills found</p>
+          <div className="p-8">
+            <EmptyState
+              title="No bills found"
+              description="Settled invoices and payment records will appear here as orders are billed."
+            />
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-gray-300">
-              <thead className="border-b border-white/5 bg-surface/50 text-[11px] uppercase tracking-wider text-gray-400 font-semibold">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-pos-border bg-ivory text-xs uppercase tracking-wider text-pos-muted font-semibold">
                 <tr>
-                  <th className="px-4 py-3">Bill Number</th>
-                  <th className="px-4 py-3">Table / Type</th>
-                  <th className="px-4 py-3">Date & Time</th>
-                  <th className="px-4 py-3">Subtotal</th>
-                  <th className="px-4 py-3">Discount</th>
-                  <th className="px-4 py-3">Total (₹)</th>
-                  <th className="px-4 py-3">Payment</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Receipt</th>
+                  <th className="px-4 py-3.5">Bill Number</th>
+                  <th className="px-4 py-3.5">Table / Type</th>
+                  <th className="px-4 py-3.5">Time</th>
+                  <th className="px-4 py-3.5">Subtotal</th>
+                  <th className="px-4 py-3.5">Discount</th>
+                  <th className="px-4 py-3.5">Total Amount</th>
+                  <th className="px-4 py-3.5">Payment</th>
+                  <th className="px-4 py-3.5">Status</th>
+                  <th className="px-4 py-3.5 text-right">Receipt</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-pos-border">
                 {filteredBills.map((b) => {
                   const payment = b.payments?.[0];
                   return (
-                    <tr key={b.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-4 py-3 font-mono font-semibold text-white">
+                    <tr key={b.id} className="hover:bg-ivory/40 transition-colors">
+                      <td className="px-4 py-3.5 font-mono font-semibold text-pos-text">
                         {b.billNumber}
                       </td>
-                      <td className="px-4 py-3 font-medium">
+                      <td className="px-4 py-3.5 font-medium">
                         {b.orderType === 'PARCEL' ? (
-                          <span className="rounded bg-amber-500/10 text-amber-400 px-2 py-0.5 font-bold">
+                          <span className="rounded bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 text-[10px] font-bold">
                             PARCEL
                           </span>
                         ) : (
-                          <span className="rounded bg-blue-500/10 text-blue-400 px-2 py-0.5 font-bold">
+                          <span className="rounded bg-forest-50 text-forest-800 border border-forest-200 px-2 py-0.5 text-[10px] font-bold">
                             {b.tableNumber ? `Table ${b.tableNumber}` : 'Dine-In'}
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gray-400">
+                      <td className="px-4 py-3.5 text-pos-muted">
                         {new Date(b.paidAt ?? b.createdAt).toLocaleTimeString('en-IN', {
                           hour: '2-digit',
                           minute: '2-digit',
                         })}
                       </td>
-                      <td className="px-4 py-3">₹{b.subtotal.toFixed(0)}</td>
-                      <td className="px-4 py-3 text-green-400">
-                        {b.discountAmount > 0 ? `-₹${b.discountAmount.toFixed(0)}` : '—'}
+                      <td className="px-4 py-3.5 text-pos-muted">₹{b.subtotal.toFixed(2)}</td>
+                      <td className="px-4 py-3.5">
+                        {b.discountAmount > 0 ? (
+                          <span className="text-emerald-700 font-semibold">-₹{b.discountAmount.toFixed(2)}</span>
+                        ) : (
+                          <span className="text-pos-muted">—</span>
+                        )}
                       </td>
-                      <td className="px-4 py-3 font-bold text-white text-sm">
-                        ₹{b.finalAmount.toFixed(0)}
+                      <td className="px-4 py-3.5 font-bold text-pos-text text-sm">
+                        ₹{b.finalAmount.toFixed(2)}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3.5">
                         {payment ? (
-                          <span className="rounded bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-300">
+                          <span className="rounded-md border border-pos-border bg-ivory px-2 py-0.5 text-[10px] font-bold uppercase text-forest-800">
                             {payment.paymentMethod}
                           </span>
                         ) : (
-                          <span className="text-gray-500">—</span>
+                          <span className="text-pos-muted">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`rounded px-2 py-0.5 text-[10px] font-extrabold uppercase ${
-                            b.status === 'PAID'
-                              ? 'bg-green-500/15 text-green-400'
-                              : 'bg-yellow-500/15 text-yellow-400'
-                          }`}
+                      <td className="px-4 py-3.5">
+                        <Badge
+                          variant={b.status === 'PAID' ? 'success' : 'warning'}
+                          size="sm"
                         >
                           {b.status}
-                        </span>
+                        </Badge>
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          type="button"
+                      <td className="px-4 py-3.5 text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => setSelectedBillForPrint(b)}
-                          className="rounded-lg bg-white/5 px-2.5 py-1 text-xs font-semibold text-gray-200 hover:bg-brand-500 hover:text-white transition-colors"
+                          leftIcon={
+                            <svg className="h-3.5 w-3.5 text-pos-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
+                          }
                         >
-                          🖨️ Print
-                        </button>
+                          Print
+                        </Button>
                       </td>
                     </tr>
                   );
@@ -247,15 +293,19 @@ const BillingHistoryPage: React.FC = () => {
 
       {/* Modal for Viewing/Printing Thermal Receipt */}
       {selectedBillForPrint && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-surface-light p-6 shadow-2xl">
-            <ThermalReceipt
-              bill={selectedBillForPrint}
-              onClose={() => setSelectedBillForPrint(null)}
-              onPrint={() => window.print()}
-            />
-          </div>
-        </div>
+        <Modal
+          isOpen={Boolean(selectedBillForPrint)}
+          onClose={() => setSelectedBillForPrint(null)}
+          title="Print Receipt"
+          description="Standard 80mm thermal receipt formatted for restaurant printer"
+          maxWidth="md"
+        >
+          <ThermalReceipt
+            bill={selectedBillForPrint}
+            onClose={() => setSelectedBillForPrint(null)}
+            onPrint={() => window.print()}
+          />
+        </Modal>
       )}
     </div>
   );
