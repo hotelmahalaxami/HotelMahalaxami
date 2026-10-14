@@ -2,7 +2,9 @@ package com.mahalaxmi.pos.billing.repository;
 
 import com.mahalaxmi.pos.billing.entity.Bill;
 import com.mahalaxmi.pos.billing.entity.BillStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,6 +14,10 @@ import java.util.Optional;
 
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT b FROM Bill b WHERE b.id = :id")
+    Optional<Bill> findByIdLocked(@Param("id") Long id);
 
     Optional<Bill> findByBillNumber(String billNumber);
 

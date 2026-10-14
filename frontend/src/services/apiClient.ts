@@ -59,19 +59,34 @@ apiClient.interceptors.response.use(
   }
 );
 
-// In-memory token store (more secure than localStorage for access tokens)
-// Token is lost on page refresh — this is a deliberate security trade-off.
-// See README for token storage security rationale.
+const TOKEN_KEY = 'mahalaxmi_pos_token';
+
 export const tokenStore = {
   _token: null as string | null,
   getToken(): string | null {
-    return this._token;
+    if (this._token) return this._token;
+    try {
+      this._token = sessionStorage.getItem(TOKEN_KEY);
+      return this._token;
+    } catch {
+      return null;
+    }
   },
   setToken(token: string): void {
     this._token = token;
+    try {
+      sessionStorage.setItem(TOKEN_KEY, token);
+    } catch {
+      // ignore in environments where storage is disabled
+    }
   },
   clearToken(): void {
     this._token = null;
+    try {
+      sessionStorage.removeItem(TOKEN_KEY);
+    } catch {
+      // ignore
+    }
   },
 };
 

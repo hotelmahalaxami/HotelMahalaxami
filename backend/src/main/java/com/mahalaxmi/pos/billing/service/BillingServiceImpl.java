@@ -113,6 +113,10 @@ public class BillingServiceImpl implements BillingService {
             throw new IllegalArgumentException("Payment method is required to settle bill");
         }
 
+        // Acquire exclusive row lock to serialize concurrent settlement attempts
+        billRepository.findByIdLocked(billId)
+                .orElseThrow(() -> new ResourceNotFoundException("Bill not found with id: " + billId));
+
         Bill bill = billRepository.findByIdWithDetails(billId)
                 .orElseThrow(() -> new ResourceNotFoundException("Bill not found with id: " + billId));
 
