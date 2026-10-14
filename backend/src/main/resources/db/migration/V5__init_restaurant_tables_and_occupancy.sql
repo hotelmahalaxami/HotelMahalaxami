@@ -26,6 +26,25 @@ INSERT INTO restaurant_tables (table_name, capacity, active, display_order) VALU
     ('Family Hall 2', 12, TRUE, 10)
 ON CONFLICT (table_name) DO NOTHING;
 
+-- Reconcile historical duplicate OPEN dine-in orders on the same table before creating unique index.
+-- For tables with multiple OPEN orders, keep the latest one OPEN and mark older orphaned tickets as CANCELLED.
+WITH ranked_orders AS (
+    SELECT id,
+           ROW_NUMBER() OVER (
+               PARTITION BY LOWER(TRIM(table_number)) 
+               ORDER BY created_at DESC, id DESC
+           ) AS rank
+    FROM orders
+    WHERE order_type = 'DINE_IN' AND status = 'OPEN'
+)
+UPDATE orders
+SET status = 'CANCELLED',
+    notes = COALESCE(notes || ' | ', '') || 'Auto-closed stale duplicate active ticket during table occupancy migration',
+    updated_at = NOW()
+WHERE id IN (
+    SELECT id FROM ranked_orders WHERE rank > 1
+);
+
 -- Enforce zero conflicting active dine-in orders on the same table concurrently
 CREATE UNIQUE INDEX IF NOT EXISTS uq_orders_active_dine_in_table 
 ON orders (LOWER(TRIM(table_number))) 
