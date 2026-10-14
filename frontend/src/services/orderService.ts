@@ -20,6 +20,11 @@ export const orderService = {
     return response.data.data;
   },
 
+  async getOrderByNumber(orderNumber: string): Promise<Order> {
+    const response = await apiClient.get<ApiResponse<Order>>(`/api/v1/orders/by-number/${orderNumber}`);
+    return response.data.data;
+  },
+
   async updateOrder(id: number, request: UpdateOrderRequest): Promise<Order> {
     const response = await apiClient.put<ApiResponse<Order>>(`/api/v1/orders/${id}`, request);
     return response.data.data;

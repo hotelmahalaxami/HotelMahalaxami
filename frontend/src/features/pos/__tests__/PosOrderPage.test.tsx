@@ -22,6 +22,16 @@ vi.mock('../../../services/orderService', () => ({
   },
 }));
 
+vi.mock('../../../services/tableService', () => ({
+  tableService: {
+    getTables: vi.fn().mockResolvedValue([]),
+    getTableById: vi.fn(),
+    createTable: vi.fn(),
+    updateTable: vi.fn(),
+    deleteTable: vi.fn(),
+  },
+}));
+
 const mockCategories = [
   { id: 1, name: 'Thali', displayOrder: 1, active: true },
   { id: 2, name: 'Chicken', displayOrder: 2, active: true },

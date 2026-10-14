@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
 import { reportService } from '../services/reportService';
 import { orderService } from '../services/orderService';
+import { OrderDetailModal } from '../features/orders/OrderDetailModal';
 import type { DashboardSummaryResponse } from '../types/reports';
 import type { Order } from '../types/pos';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/Card';
@@ -38,6 +39,7 @@ const DashboardPage: React.FC = () => {
 
   const [summary, setSummary] = useState<DashboardSummaryResponse | null>(null);
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -163,7 +165,7 @@ const DashboardPage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link to="/orders">
+          <Link to="/orders/create">
             <Button
               variant="primary"
               size="md"
@@ -293,9 +295,9 @@ const DashboardPage: React.FC = () => {
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Recent Orders</CardTitle>
-                <CardDescription>Live restaurant tickets and tables</CardDescription>
+                <CardDescription>Click any order to view details and reprint receipts</CardDescription>
               </div>
-              <Link to="/orders" className="text-xs font-medium text-forest-700 hover:text-forest-900 underline">
+              <Link to="/live-orders" className="text-xs font-medium text-forest-700 hover:text-forest-900 underline">
                 View all
               </Link>
             </CardHeader>
@@ -306,7 +308,7 @@ const DashboardPage: React.FC = () => {
                     title="No orders recorded yet"
                     description="Create a new POS ticket from the orders screen to begin tracking live service."
                     action={
-                      <Link to="/orders">
+                      <Link to="/orders/create">
                         <Button variant="primary" size="sm">
                           Create first order
                         </Button>
@@ -329,7 +331,12 @@ const DashboardPage: React.FC = () => {
                     {recentOrders.map((order) => {
                       const itemCount = order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
                       return (
-                        <tr key={order.id} className="hover:bg-ivory/50 transition-colors">
+                        <tr
+                          key={order.id}
+                          onClick={() => setSelectedOrderId(order.id)}
+                          className="hover:bg-forest-50/60 cursor-pointer transition-colors"
+                          title="Click to view order details, settle bill, or reprint receipt"
+                        >
                           <td className="px-5 py-3.5 font-semibold text-pos-text">
                             {order.orderNumber || `#${order.id}`}
                           </td>
@@ -458,6 +465,16 @@ const DashboardPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Order Detail Modal */}
+      {selectedOrderId && (
+        <OrderDetailModal
+          orderId={selectedOrderId}
+          isOpen={Boolean(selectedOrderId)}
+          onClose={() => setSelectedOrderId(null)}
+          onOrderUpdated={fetchDashboardData}
+        />
       )}
     </div>
   );

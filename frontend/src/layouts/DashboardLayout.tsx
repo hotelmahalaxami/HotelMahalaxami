@@ -20,11 +20,29 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    label: 'Orders',
-    to: '/orders',
+    label: 'Create Order',
+    to: '/orders/create',
+    icon: () => (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Live Orders',
+    to: '/live-orders',
     icon: () => (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Billing',
+    to: '/billing',
+    icon: () => (
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
   },
@@ -39,13 +57,14 @@ const navItems: NavItem[] = [
     adminOnly: true,
   },
   {
-    label: 'Billing',
-    to: '/billing',
+    label: 'Tables',
+    to: '/admin/tables',
     icon: () => (
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
       </svg>
     ),
+    adminOnly: true,
   },
   {
     label: 'Reports',
@@ -71,9 +90,12 @@ const navItems: NavItem[] = [
 
 const pageContextMap: Record<string, { title: string; subtitle: string }> = {
   '/dashboard': { title: 'Operational Dashboard', subtitle: 'Live overview of sales, orders, and restaurant activity' },
-  '/orders': { title: 'Orders & POS', subtitle: 'Table orders, ticket creation, and billing status' },
-  '/admin/menu': { title: 'Menu Management', subtitle: 'Configure items, pricing, categories, and stock availability' },
+  '/orders/create': { title: 'Create Order & POS', subtitle: 'Table orders, ticket creation, and billing status' },
+  '/orders': { title: 'Create Order & POS', subtitle: 'Table orders, ticket creation, and billing status' },
+  '/live-orders': { title: 'Live Orders', subtitle: 'Monitor active orders, awaiting payments, settlements, and order history' },
   '/billing': { title: 'Billing & Invoices', subtitle: 'Settled receipts, payment records, and thermal printing' },
+  '/admin/menu': { title: 'Menu Management', subtitle: 'Configure items, pricing, categories, and stock availability' },
+  '/admin/tables': { title: 'Table Management', subtitle: 'Configure dining tables, seating capacity, and monitor live occupancy' },
   '/reports': { title: 'Reports & Analytics', subtitle: 'Revenue summaries, sales trends, and top performers' },
   '/admin/staff': { title: 'Staff Accounts', subtitle: 'User roles, terminal access, and security management' },
 };

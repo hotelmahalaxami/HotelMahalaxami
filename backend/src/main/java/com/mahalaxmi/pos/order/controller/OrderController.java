@@ -48,6 +48,12 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.ok(order));
     }
 
+    @GetMapping("/by-number/{orderNumber}")
+    public ResponseEntity<ApiResponse<OrderResponse>> getOrderByNumber(@PathVariable String orderNumber) {
+        OrderResponse order = orderService.getOrderByNumber(orderNumber);
+        return ResponseEntity.ok(ApiResponse.ok(order));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderResponse>> updateOrder(
             @PathVariable Long id,

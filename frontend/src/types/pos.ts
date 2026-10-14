@@ -17,7 +17,7 @@ export interface MenuItem {
 }
 
 export type OrderType = 'DINE_IN' | 'PARCEL';
-export type OrderStatus = 'OPEN' | 'READY_FOR_BILL' | 'CANCELLED';
+export type OrderStatus = 'OPEN' | 'READY_FOR_BILL' | 'COMPLETED' | 'CANCELLED';
 export type OrderItemStatus = 'ACTIVE' | 'CANCELLED';
 
 export interface OrderItemRequest {

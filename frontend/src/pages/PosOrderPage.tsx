@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { menuService } from '../services/menuService';
 import { orderService } from '../services/orderService';
+import { tableService } from '../services/tableService';
 import type { ApiException } from '../types/api';
+import type { RestaurantTable } from '../types/table';
 import type {
   CartItem,
   MenuCategory,
@@ -14,7 +17,7 @@ import { SettleBillModal } from '../features/billing/SettleBillModal';
 import Button from '../components/ui/Button';
 import EmptyState from '../components/ui/EmptyState';
 
-const TABLE_OPTIONS = [
+const FALLBACK_TABLES = [
   'Table 1',
   'Table 2',
   'Table 3',
@@ -27,10 +30,23 @@ const TABLE_OPTIONS = [
   'Family Hall 2',
 ];
 
+const getRelativeTime = (isoString?: string): string => {
+  if (!isoString) return '';
+  const diffMs = Date.now() - new Date(isoString).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return new Date(isoString).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+};
+
 const PosOrderPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [openOrders, setOpenOrders] = useState<Order[]>([]);
+  const [tables, setTables] = useState<RestaurantTable[]>([]);
   const [settlingOrder, setSettlingOrder] = useState<Order | null>(null);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -54,14 +70,16 @@ const PosOrderPage: React.FC = () => {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const [cats, items, orders] = await Promise.all([
+      const [cats, items, orders, fetchedTables] = await Promise.all([
         menuService.getCategories(),
         menuService.getItems(),
         orderService.getOrders('OPEN'),
+        tableService.getTables().catch(() => [] as RestaurantTable[]),
       ]);
       setCategories(cats);
       setMenuItems(items);
       setOpenOrders(orders);
+      setTables(fetchedTables);
     } catch (err) {
       const apiErr = err as ApiException;
       setErrorMsg(apiErr.apiError?.message ?? 'Failed to load POS menu data.');
@@ -73,6 +91,65 @@ const PosOrderPage: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Derived table options including occupancy status
+  const tableOptions = useMemo(() => {
+    if (tables && tables.length > 0) {
+      return tables.map((t) => {
+        const activeOrder = openOrders.find(
+          (o) =>
+            o.orderType === 'DINE_IN' &&
+            o.tableNumber &&
+            o.tableNumber.trim().toLowerCase() === t.tableName.trim().toLowerCase()
+        );
+        const isOccupied = t.isOccupied || Boolean(activeOrder);
+        const currentOrderNumber = activeOrder?.orderNumber ?? t.currentOrderNumber ?? null;
+        const currentOrderId = activeOrder?.id ?? t.currentOrderId ?? null;
+        return {
+          id: t.id,
+          name: t.tableName,
+          capacity: t.capacity,
+          isOccupied,
+          currentOrderNumber,
+          currentOrderId,
+        };
+      });
+    }
+    return FALLBACK_TABLES.map((name, idx) => {
+      const activeOrder = openOrders.find(
+        (o) =>
+          o.orderType === 'DINE_IN' &&
+          o.tableNumber &&
+          o.tableNumber.trim().toLowerCase() === name.trim().toLowerCase()
+      );
+      return {
+        id: idx + 1,
+        name,
+        capacity: 4,
+        isOccupied: Boolean(activeOrder),
+        currentOrderNumber: activeOrder?.orderNumber ?? null,
+        currentOrderId: activeOrder?.id ?? null,
+      };
+    });
+  }, [tables, openOrders]);
+
+  // Check if the currently chosen table has an active conflict
+  const selectedTableOccupancy = useMemo(() => {
+    if (orderType !== 'DINE_IN') return null;
+    const match = tableOptions.find(
+      (t) => t.name.trim().toLowerCase() === tableNumber.trim().toLowerCase()
+    );
+    if (!match || !match.isOccupied) return null;
+    // If editing an existing order and this table belongs to this exact order, no conflict
+    if (
+      editingOrder &&
+      editingOrder.tableNumber &&
+      editingOrder.tableNumber.trim().toLowerCase() === tableNumber.trim().toLowerCase()
+    ) {
+      return null;
+    }
+    return match;
+  }, [orderType, tableOptions, tableNumber, editingOrder]);
 
   // Filtered menu items
   const filteredItems = useMemo(() => {
@@ -136,34 +213,60 @@ const PosOrderPage: React.FC = () => {
     setSuccessMsg(null);
   };
 
-  const selectOpenOrderForEdit = (order: Order) => {
-    setEditingOrder(order);
-    setOrderType(order.orderType);
-    setTableNumber(order.tableNumber ?? 'Table 1');
-    setNotes(order.notes ?? '');
-    setErrorMsg(null);
-    setSuccessMsg(null);
+  const selectOpenOrderForEdit = useCallback(
+    (order: Order) => {
+      setEditingOrder(order);
+      setOrderType(order.orderType);
+      setTableNumber(order.tableNumber ?? 'Table 1');
+      setNotes(order.notes ?? '');
+      setErrorMsg(null);
+      setSuccessMsg(null);
 
-    const reconstructedCart: CartItem[] = [];
-    for (const oi of order.items) {
-      if (oi.status !== 'ACTIVE') continue;
-      const foundMenu = menuItems.find((m) => m.id === oi.menuItemId) ?? {
-        id: oi.menuItemId,
-        categoryId: 0,
-        categoryName: '',
-        name: oi.itemName,
-        price: oi.unitPrice,
-        isVeg: true,
-        available: true,
-        displayOrder: 0,
-      };
-      reconstructedCart.push({
-        menuItem: foundMenu,
-        quantity: oi.quantity,
-      });
+      const reconstructedCart: CartItem[] = [];
+      for (const oi of order.items) {
+        if (oi.status !== 'ACTIVE') continue;
+        const foundMenu = menuItems.find((m) => m.id === oi.menuItemId) ?? {
+          id: oi.menuItemId,
+          categoryId: 0,
+          categoryName: '',
+          name: oi.itemName,
+          price: oi.unitPrice,
+          isVeg: true,
+          available: true,
+          displayOrder: 0,
+        };
+        reconstructedCart.push({
+          menuItem: foundMenu,
+          quantity: oi.quantity,
+        });
+      }
+      setCart(reconstructedCart);
+    },
+    [menuItems]
+  );
+
+  // If editOrderId is in searchParams, select that order for editing once orders & items are loaded
+  useEffect(() => {
+    const editOrderIdStr = searchParams.get('editOrderId');
+    if (!editOrderIdStr || menuItems.length === 0) return;
+    const orderId = Number(editOrderIdStr);
+    if (!orderId || isNaN(orderId)) return;
+    if (editingOrder?.id === orderId) return;
+
+    const existing = openOrders.find((o) => o.id === orderId);
+    if (existing) {
+      selectOpenOrderForEdit(existing);
+    } else {
+      orderService
+        .getOrderById(orderId)
+        .then((fetched) => {
+          if (fetched && fetched.status === 'OPEN') {
+            selectOpenOrderForEdit(fetched);
+          }
+        })
+        .catch(() => {});
     }
-    setCart(reconstructedCart);
-  };
+  }, [searchParams, menuItems, openOrders, selectOpenOrderForEdit, editingOrder]);
 
   const totalAmount = useMemo(() => {
     return cart.reduce((sum, ci) => sum + ci.menuItem.price * ci.quantity, 0);
@@ -176,6 +279,13 @@ const PosOrderPage: React.FC = () => {
   const handleSaveOrder = async (markReadyForBill = false) => {
     if (cart.length === 0) {
       setErrorMsg('Please add at least one item to the order.');
+      return;
+    }
+
+    if (orderType === 'DINE_IN' && selectedTableOccupancy) {
+      setErrorMsg(
+        `${selectedTableOccupancy.name} is currently occupied by Order ${selectedTableOccupancy.currentOrderNumber}. Please select another table or edit the existing ticket.`
+      );
       return;
     }
 
@@ -224,9 +334,13 @@ const PosOrderPage: React.FC = () => {
         );
       }
 
-      // Refresh open orders list
-      const updatedOpenOrders = await orderService.getOrders('OPEN');
+      // Refresh open orders and tables
+      const [updatedOpenOrders, updatedTables] = await Promise.all([
+        orderService.getOrders('OPEN'),
+        tableService.getTables().catch(() => [] as RestaurantTable[]),
+      ]);
       setOpenOrders(updatedOpenOrders);
+      setTables(updatedTables);
 
       // Reset cart for next customer
       setEditingOrder(null);
@@ -253,8 +367,12 @@ const PosOrderPage: React.FC = () => {
     setErrorMsg(null);
     try {
       await orderService.cancelOrder(editingOrder.id);
-      const updatedOpenOrders = await orderService.getOrders('OPEN');
+      const [updatedOpenOrders, updatedTables] = await Promise.all([
+        orderService.getOrders('OPEN'),
+        tableService.getTables().catch(() => [] as RestaurantTable[]),
+      ]);
       setOpenOrders(updatedOpenOrders);
+      setTables(updatedTables);
       setSuccessMsg(`Order ${editingOrder.orderNumber} cancelled.`);
       clearCurrentOrder();
     } catch (err) {
@@ -331,45 +449,81 @@ const PosOrderPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Active Open Orders Pills Bar (if any) */}
+      {/* Active Open Orders Section */}
       {openOrders.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto rounded-xl border border-pos-border bg-white px-3.5 py-2.5 shadow-subtle">
-          <span className="text-xs font-semibold uppercase tracking-wider text-forest-800 flex-shrink-0">
-            Active Orders ({openOrders.length}):
-          </span>
-          <div className="flex items-center gap-2 overflow-x-auto">
+        <div className="rounded-xl border border-pos-border bg-white p-3.5 shadow-subtle">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="flex h-2.5 w-2.5 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-xs font-bold uppercase tracking-wider text-forest-900">
+                Active Orders ({openOrders.length})
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] text-pos-muted hidden sm:inline">
+                Click any order card to load & edit ticket
+              </span>
+              {editingOrder && (
+                <button
+                  type="button"
+                  onClick={clearCurrentOrder}
+                  className="rounded-lg border border-pos-border bg-ivory px-2.5 py-1 text-xs font-semibold text-pos-text hover:bg-forest-50 transition-colors"
+                >
+                  + New Ticket
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
             {openOrders.map((ord) => {
               const isSelected = editingOrder?.id === ord.id;
+              const isParcel = ord.orderType === 'PARCEL';
               return (
                 <button
                   key={ord.id}
                   type="button"
                   onClick={() => selectOpenOrderForEdit(ord)}
-                  className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all flex-shrink-0 ${
+                  className={`flex flex-col gap-1 rounded-xl border p-2.5 text-left transition-all flex-shrink-0 min-w-[170px] ${
                     isSelected
-                      ? 'border-terracotta bg-terracotta-50 text-terracotta-800 shadow-xs'
-                      : 'border-pos-border bg-ivory/50 text-pos-text hover:border-forest-300 hover:bg-white'
+                      ? 'border-terracotta bg-terracotta-50/90 shadow-xs ring-1 ring-terracotta'
+                      : 'border-pos-border bg-ivory/40 hover:border-forest-400 hover:bg-white hover:shadow-subtle'
                   }`}
                 >
-                  <span className="font-bold text-forest-900">
-                    {ord.tableNumber || ord.orderType}
-                  </span>
-                  <span className="text-pos-muted">•</span>
-                  <span className="font-semibold">₹{ord.totalAmount}</span>
-                  <span className="text-[10px] text-pos-muted">({ord.items.length} items)</span>
+                  <div className="flex items-center justify-between gap-1">
+                    <span
+                      className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
+                        isParcel
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-forest-100 text-forest-800'
+                      }`}
+                    >
+                      {isParcel ? 'PARCEL' : (ord.tableNumber || 'Table')}
+                    </span>
+                    <span className="text-[10px] text-pos-muted">
+                      {getRelativeTime(ord.createdAt)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mt-0.5">
+                    <span className="font-mono text-xs font-medium text-pos-muted">
+                      {ord.orderNumber.replace('ORD-', '')}
+                    </span>
+                    <span className="text-xs font-bold text-forest-950">
+                      ₹{ord.totalAmount}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-pos-muted mt-0.5">
+                    <span>{ord.items.length} {ord.items.length === 1 ? 'item' : 'items'}</span>
+                    <span className="font-semibold text-emerald-700 uppercase text-[10px]">
+                      {ord.status}
+                    </span>
+                  </div>
                 </button>
               );
             })}
           </div>
-          {editingOrder && (
-            <button
-              type="button"
-              onClick={clearCurrentOrder}
-              className="ml-auto rounded-lg border border-pos-border bg-ivory px-2.5 py-1 text-xs font-semibold text-pos-text hover:bg-forest-50 flex-shrink-0"
-            >
-              + New Ticket
-            </button>
-          )}
         </div>
       )}
 
@@ -549,48 +703,74 @@ const PosOrderPage: React.FC = () => {
             </div>
 
             {/* Order Type & Table Selector */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex rounded-lg bg-white p-0.5 border border-pos-border">
-                <button
-                  type="button"
-                  onClick={() => setOrderType('DINE_IN')}
-                  className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${
-                    orderType === 'DINE_IN'
-                      ? 'bg-forest text-white shadow-xs'
-                      : 'text-pos-muted hover:text-pos-text'
-                  }`}
-                >
-                  Dine-In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOrderType('PARCEL')}
-                  className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${
-                    orderType === 'PARCEL'
-                      ? 'bg-forest text-white shadow-xs'
-                      : 'text-pos-muted hover:text-pos-text'
-                  }`}
-                >
-                  Parcel
-                </button>
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex rounded-lg bg-white p-0.5 border border-pos-border">
+                  <button
+                    type="button"
+                    onClick={() => setOrderType('DINE_IN')}
+                    className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${
+                      orderType === 'DINE_IN'
+                        ? 'bg-forest text-white shadow-xs'
+                        : 'text-pos-muted hover:text-pos-text'
+                    }`}
+                  >
+                    Dine-In
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOrderType('PARCEL')}
+                    className={`flex-1 rounded-md py-1.5 text-xs font-semibold transition-colors ${
+                      orderType === 'PARCEL'
+                        ? 'bg-forest text-white shadow-xs'
+                        : 'text-pos-muted hover:text-pos-text'
+                    }`}
+                  >
+                    Parcel
+                  </button>
+                </div>
+
+                {orderType === 'DINE_IN' ? (
+                  <select
+                    aria-label="Select Table"
+                    value={tableNumber}
+                    onChange={(e) => setTableNumber(e.target.value)}
+                    className="rounded-lg border border-pos-border bg-white px-2.5 py-1.5 text-xs font-medium text-pos-text focus:border-forest-700 focus:outline-none"
+                  >
+                    {tableOptions.map((t) => (
+                      <option key={t.id} value={t.name}>
+                        {t.name} {t.isOccupied ? `(Occupied - #${t.currentOrderNumber ? t.currentOrderNumber.replace('ORD-', '') : 'In use'})` : '(Available)'}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="flex items-center justify-center rounded-lg border border-pos-border bg-white px-2.5 py-1.5 text-xs text-forest-800 font-semibold">
+                    Takeaway Parcel
+                  </div>
+                )}
               </div>
 
-              {orderType === 'DINE_IN' ? (
-                <select
-                  aria-label="Select Table"
-                  value={tableNumber}
-                  onChange={(e) => setTableNumber(e.target.value)}
-                  className="rounded-lg border border-pos-border bg-white px-2.5 py-1.5 text-xs font-medium text-pos-text focus:border-forest-700 focus:outline-none"
-                >
-                  {TABLE_OPTIONS.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <div className="flex items-center justify-center rounded-lg border border-pos-border bg-white px-2.5 py-1.5 text-xs text-forest-800 font-semibold">
-                  Takeaway Parcel
+              {/* Inline Occupancy Warning */}
+              {selectedTableOccupancy && (
+                <div className="rounded-lg border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="font-semibold">⚠️ {selectedTableOccupancy.name} is occupied</span>
+                    <span className="text-amber-800"> by Order #{selectedTableOccupancy.currentOrderNumber}</span>
+                  </div>
+                  {selectedTableOccupancy.currentOrderId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ord = openOrders.find((o) => o.id === selectedTableOccupancy.currentOrderId);
+                        if (ord) {
+                          selectOpenOrderForEdit(ord);
+                        }
+                      }}
+                      className="rounded bg-amber-200 px-2 py-0.5 text-xs font-semibold text-amber-900 hover:bg-amber-300 transition-colors whitespace-nowrap"
+                    >
+                      Switch to Ticket
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -741,8 +921,12 @@ const PosOrderPage: React.FC = () => {
           tableNumber={settlingOrder.tableNumber}
           onClose={() => setSettlingOrder(null)}
           onSettled={async (settledBill) => {
-            const updated = await orderService.getOrders('OPEN');
+            const [updated, updatedTables] = await Promise.all([
+              orderService.getOrders('OPEN'),
+              tableService.getTables().catch(() => [] as RestaurantTable[]),
+            ]);
             setOpenOrders(updated);
+            setTables(updatedTables);
             if (editingOrder?.id === settledBill.orderId) {
               clearCurrentOrder();
             }

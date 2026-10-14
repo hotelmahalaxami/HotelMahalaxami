@@ -1,5 +1,6 @@
 package com.mahalaxmi.pos.order.service;
 
+import com.mahalaxmi.pos.common.exception.DuplicateResourceException;
 import com.mahalaxmi.pos.common.exception.ResourceNotFoundException;
 import com.mahalaxmi.pos.menu.entity.MenuItem;
 import com.mahalaxmi.pos.menu.repository.MenuItemRepository;
@@ -41,6 +42,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse createOrder(CreateOrderRequest request, String username) {
+        OrderType resolvedOrderType = request.orderType() != null ? request.orderType() : OrderType.DINE_IN;
+        String rawTable = request.tableNumber() != null ? request.tableNumber().trim() : null;
+
+        // Prevent two active dine-in orders on the same table
+        if (resolvedOrderType == OrderType.DINE_IN && rawTable != null && !rawTable.isBlank()) {
+            Optional<Order> activeOccupant = orderRepository.findActiveDineInOrder(rawTable);
+            if (activeOccupant.isPresent()) {
+                throw new DuplicateResourceException("Table '" + rawTable + "' is currently occupied by active order " +
+                        activeOccupant.get().getOrderNumber() + ". Please select another table or manage the existing order.");
+            }
+        }
+
         User creator = null;
         if (username != null) {
             creator = userRepository.findByUsername(username)
@@ -50,8 +63,8 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = new Order();
         order.setOrderNumber(generateOrderNumber());
-        order.setTableNumber(request.tableNumber() != null ? request.tableNumber().trim() : null);
-        order.setOrderType(request.orderType() != null ? request.orderType() : OrderType.DINE_IN);
+        order.setTableNumber(rawTable);
+        order.setOrderType(resolvedOrderType);
         order.setStatus(OrderStatus.OPEN);
         order.setNotes(request.notes() != null ? request.notes().trim() : null);
         order.setCreatedBy(creator);
@@ -82,6 +95,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
+    public OrderResponse getOrderByNumber(String orderNumber) {
+        Order order = orderRepository.findByOrderNumberWithItems(orderNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with order number: " + orderNumber));
+        return OrderResponse.from(order);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<OrderResponse> getOrders(OrderStatus status) {
         List<Order> orders = (status != null)
                 ? orderRepository.findByStatusWithItems(status)
@@ -100,6 +121,19 @@ public class OrderServiceImpl implements OrderService {
 
         if (order.getStatus() == OrderStatus.CANCELLED) {
             throw new IllegalArgumentException("Cannot modify a cancelled order");
+        }
+
+        OrderType targetOrderType = request.orderType() != null ? request.orderType() : order.getOrderType();
+        OrderStatus targetStatus = request.status() != null ? request.status() : order.getStatus();
+        String targetTable = request.tableNumber() != null ? request.tableNumber().trim() : order.getTableNumber();
+
+        // If target is an OPEN DINE_IN order, ensure the table is not occupied by another order
+        if (targetOrderType == OrderType.DINE_IN && targetStatus == OrderStatus.OPEN && targetTable != null && !targetTable.isBlank()) {
+            Optional<Order> activeOccupant = orderRepository.findActiveDineInOrder(targetTable);
+            if (activeOccupant.isPresent() && !Objects.equals(activeOccupant.get().getId(), id)) {
+                throw new DuplicateResourceException("Table '" + targetTable + "' is currently occupied by active order " +
+                        activeOccupant.get().getOrderNumber());
+            }
         }
 
         if (request.tableNumber() != null) {

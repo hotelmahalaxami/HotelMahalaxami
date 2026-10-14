@@ -43,4 +43,27 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     long countByStatusAndCreatedAtBetween(OrderStatus status, java.time.LocalDateTime start, java.time.LocalDateTime end);
 
     long countByCreatedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+    @Query("""
+        SELECT DISTINCT o FROM Order o
+        LEFT JOIN FETCH o.items i
+        LEFT JOIN FETCH o.createdBy
+        WHERE o.orderNumber = :orderNumber
+    """)
+    Optional<Order> findByOrderNumberWithItems(@Param("orderNumber") String orderNumber);
+
+    @Query("""
+        SELECT o FROM Order o
+        WHERE o.orderType = com.mahalaxmi.pos.order.entity.OrderType.DINE_IN
+          AND o.status = com.mahalaxmi.pos.order.entity.OrderStatus.OPEN
+          AND LOWER(TRIM(o.tableNumber)) = LOWER(TRIM(:tableNumber))
+    """)
+    Optional<Order> findActiveDineInOrder(@Param("tableNumber") String tableNumber);
+
+    @Query("""
+        SELECT o FROM Order o
+        WHERE o.orderType = com.mahalaxmi.pos.order.entity.OrderType.DINE_IN
+          AND o.status = com.mahalaxmi.pos.order.entity.OrderStatus.OPEN
+    """)
+    List<Order> findAllActiveDineInOrders();
 }
