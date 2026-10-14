@@ -12,27 +12,36 @@ const modules = [
     active: true,
   },
   {
-    label: 'Menu',
-    description: 'Browse Mahalaxmi Hotel categories & items',
-    icon: '🍽️',
-    stage: 'Active',
-    to: '/orders',
-    active: true,
-  },
-  {
     label: 'Billing',
-    description: 'Process CASH/UPI/CARD payments & print receipts',
+    description: 'Process CASH/UPI/CARD payments & print bills',
     icon: '💳',
     stage: 'Active',
     to: '/billing',
     active: true,
   },
   {
-    label: 'Reports',
-    description: 'Sales reports and analytics',
+    label: 'Menu Management',
+    description: 'Change prices, add items & toggle in-stock / sold-out',
+    icon: '🍽️',
+    stage: 'Admin',
+    to: '/admin/menu',
+    active: true,
+  },
+  {
+    label: 'Reports & Sales',
+    description: 'Today sales, payment breakdown & top items leaderboard',
     icon: '📊',
-    stage: 'Stage 4',
-    active: false,
+    stage: 'Admin',
+    to: '/reports',
+    active: true,
+  },
+  {
+    label: 'Staff Management',
+    description: 'Manage staff accounts, status & password resets',
+    icon: '👥',
+    stage: 'Admin',
+    to: '/admin/staff',
+    active: true,
   },
 ];
 
@@ -48,7 +57,7 @@ const DashboardPage: React.FC = () => {
             Welcome back, {user?.username}!
           </h2>
           <p className="mt-1 text-gray-400">
-            Mahalaxmi Hotel POS — Stage 2: Menu & Order Taking Active
+            Mahalaxmi Hotel POS — Stage 4: Admin, Reports & Restaurant Operations Active
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -70,7 +79,7 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Stage 2 active status card */}
+      {/* Stage 4 active status card */}
       <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-6">
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-green-500/20">
@@ -80,10 +89,10 @@ const DashboardPage: React.FC = () => {
           </div>
           <div>
             <h3 className="font-semibold text-green-400">
-              Stage 2 Active — Menu & Order Taking Ready
+              Stage 4 Operational — Admin, Sales Reports & Menu Control
             </h3>
             <p className="mt-0.5 text-sm text-gray-400">
-              Menu categories, items, and live POS order creation are operational. Click &ldquo;Orders (POS)&rdquo; to take customer orders.
+              Full restaurant operations are online: dynamic menu pricing, instant availability toggles, daily/monthly revenue analytics, and staff administration.
             </p>
           </div>
         </div>

@@ -6,6 +6,9 @@ import DashboardPage from '../pages/DashboardPage';
 import LoginPage from '../pages/LoginPage';
 import PosOrderPage from '../pages/PosOrderPage';
 import BillingHistoryPage from '../pages/BillingHistoryPage';
+import AdminMenuPage from '../pages/AdminMenuPage';
+import StaffManagementPage from '../pages/StaffManagementPage';
+import ReportsPage from '../pages/ReportsPage';
 
 const AppRouter: React.FC = () => {
   return (
@@ -17,6 +20,9 @@ const AppRouter: React.FC = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/orders" element={<PosOrderPage />} />
             <Route path="/billing" element={<BillingHistoryPage />} />
+            <Route path="/admin/menu" element={<AdminMenuPage />} />
+            <Route path="/admin/staff" element={<StaffManagementPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
           </Route>
         </Route>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

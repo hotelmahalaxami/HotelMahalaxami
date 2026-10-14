@@ -37,4 +37,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         ORDER BY o.createdAt DESC
     """)
     List<Order> findByStatusWithItems(@Param("status") OrderStatus status);
+
+    long countByStatus(OrderStatus status);
+
+    long countByStatusAndCreatedAtBetween(OrderStatus status, java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+    long countByCreatedAtBetween(java.time.LocalDateTime start, java.time.LocalDateTime end);
 }

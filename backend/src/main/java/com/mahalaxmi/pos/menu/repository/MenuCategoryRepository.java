@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface MenuCategoryRepository extends JpaRepository<MenuCategory, Long> {
     List<MenuCategory> findByActiveTrueOrderByDisplayOrderAscNameAsc();
+    List<MenuCategory> findAllByOrderByDisplayOrderAscNameAsc();
     Optional<MenuCategory> findByNameIgnoreCase(String name);
     boolean existsByNameIgnoreCase(String name);
 }

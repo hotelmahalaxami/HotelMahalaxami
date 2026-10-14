@@ -45,4 +45,40 @@ public interface MenuItemRepository extends JpaRepository<MenuItem, Long> {
             @Param("categoryId") Long categoryId,
             @Param("search") String search
     );
+
+    @Query("""
+        SELECT m FROM MenuItem m
+        JOIN FETCH m.category c
+        ORDER BY c.displayOrder ASC, m.displayOrder ASC, m.name ASC
+    """)
+    List<MenuItem> findAllAdmin();
+
+    @Query("""
+        SELECT m FROM MenuItem m
+        JOIN FETCH m.category c
+        WHERE c.id = :categoryId
+        ORDER BY c.displayOrder ASC, m.displayOrder ASC, m.name ASC
+    """)
+    List<MenuItem> findByCategoryAdmin(@Param("categoryId") Long categoryId);
+
+    @Query("""
+        SELECT m FROM MenuItem m
+        JOIN FETCH m.category c
+        WHERE LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%'))
+        ORDER BY c.displayOrder ASC, m.displayOrder ASC, m.name ASC
+    """)
+    List<MenuItem> findBySearchAdmin(@Param("search") String search);
+
+    @Query("""
+        SELECT m FROM MenuItem m
+        JOIN FETCH m.category c
+        WHERE c.id = :categoryId AND LOWER(m.name) LIKE LOWER(CONCAT('%', :search, '%'))
+        ORDER BY c.displayOrder ASC, m.displayOrder ASC, m.name ASC
+    """)
+    List<MenuItem> findByCategoryAndSearchAdmin(
+            @Param("categoryId") Long categoryId,
+            @Param("search") String search
+    );
+
+    boolean existsByCategoryIdAndNameIgnoreCase(Long categoryId, String name);
 }
