@@ -32,8 +32,9 @@ apiClient.interceptors.response.use(
     const status = error.response?.status ?? 0;
 
     if (status === 401) {
-      // Clear token and redirect to login
+      // Clear token and user info, then redirect to login
       tokenStore.clearToken();
+      userStore.clearUser();
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }
@@ -60,13 +61,14 @@ apiClient.interceptors.response.use(
 );
 
 const TOKEN_KEY = 'mahalaxmi_pos_token';
+const USER_KEY = 'mahalaxmi_pos_user';
 
 export const tokenStore = {
   _token: null as string | null,
   getToken(): string | null {
     if (this._token) return this._token;
     try {
-      this._token = sessionStorage.getItem(TOKEN_KEY);
+      this._token = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
       return this._token;
     } catch {
       return null;
@@ -75,15 +77,50 @@ export const tokenStore = {
   setToken(token: string): void {
     this._token = token;
     try {
-      sessionStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(TOKEN_KEY, token);
     } catch {
-      // ignore in environments where storage is disabled
+      try {
+        sessionStorage.setItem(TOKEN_KEY, token);
+      } catch {
+        // ignore
+      }
     }
   },
   clearToken(): void {
     this._token = null;
     try {
+      localStorage.removeItem(TOKEN_KEY);
       sessionStorage.removeItem(TOKEN_KEY);
+    } catch {
+      // ignore
+    }
+  },
+};
+
+export const userStore = {
+  getUser(): import('../types/auth').User | null {
+    try {
+      const data = localStorage.getItem(USER_KEY) || sessionStorage.getItem(USER_KEY);
+      return data ? (JSON.parse(data) as import('../types/auth').User) : null;
+    } catch {
+      return null;
+    }
+  },
+  setUser(user: import('../types/auth').User): void {
+    try {
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    } catch {
+      try {
+        sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+      } catch {
+        // ignore
+      }
+    }
+  },
+  clearUser(): void {
+    try {
+      localStorage.removeItem(USER_KEY);
+      sessionStorage.removeItem(USER_KEY);
     } catch {
       // ignore
     }

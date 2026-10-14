@@ -1,4 +1,4 @@
-import apiClient, { tokenStore } from './apiClient';
+import apiClient, { tokenStore, userStore } from './apiClient';
 import type { ApiResponse } from '../types/api';
 import type { LoginRequest, LoginResponse, User } from '../types/auth';
 
@@ -10,16 +10,24 @@ export const authService = {
     );
     const loginData = response.data.data;
     tokenStore.setToken(loginData.accessToken);
+    userStore.setUser(loginData.user);
     return loginData;
   },
 
   async getCurrentUser(): Promise<User> {
     const response = await apiClient.get<ApiResponse<User>>('/api/v1/auth/me');
-    return response.data.data;
+    const user = response.data.data;
+    userStore.setUser(user);
+    return user;
+  },
+
+  getStoredUser(): User | null {
+    return userStore.getUser();
   },
 
   logout(): void {
     tokenStore.clearToken();
+    userStore.clearUser();
   },
 
   isAuthenticated(): boolean {
