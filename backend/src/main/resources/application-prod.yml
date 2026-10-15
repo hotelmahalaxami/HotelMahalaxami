@@ -25,6 +25,12 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+server:
+  compression:
+    enabled: true
+    mime-types: application/json,text/html,text/xml,text/plain,text/css,application/javascript
+    min-response-size: 1024
+
 app:
   cors:
     allowed-origin: ${CORS_ALLOWED_ORIGIN:https://hotel-mahalaxami.vercel.app}
