@@ -1,0 +1,12 @@
+# robots.txt for Hotel Mahalaxmi, Ispurli
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /orders/
+Disallow: /live-orders
+Disallow: /billing
+Disallow: /admin/
+Disallow: /reports
+Disallow: /login
+
+Sitemap: https://hotel-mahalaxami.vercel.app/sitemap.xml

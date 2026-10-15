@@ -2,15 +2,25 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
 import DashboardLayout from '../layouts/DashboardLayout';
+import PublicLayout from '../layouts/PublicLayout';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 // Core entry pages loaded eagerly for immediate rendering
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
+import HomePage from '../pages/public/HomePage';
 
-// Lazy-loaded pages for smaller initial bundle and faster load
+// Lazy-loaded public pages
+const MenuPage = lazy(() => import('../pages/public/MenuPage'));
+const AboutPage = lazy(() => import('../pages/public/AboutPage'));
+const ContactPage = lazy(() => import('../pages/public/ContactPage'));
+const CheckoutPage = lazy(() => import('../pages/public/CheckoutPage'));
+const OrderTrackingPage = lazy(() => import('../pages/public/OrderTrackingPage'));
+
+// Lazy-loaded internal POS pages
 const PosOrderPage = lazy(() => import('../pages/PosOrderPage'));
 const LiveOrdersPage = lazy(() => import('../pages/LiveOrdersPage'));
+const WebsiteOrdersPage = lazy(() => import('../pages/WebsiteOrdersPage'));
 const BillingHistoryPage = lazy(() => import('../pages/BillingHistoryPage'));
 const AdminMenuPage = lazy(() => import('../pages/AdminMenuPage'));
 const TableManagementPage = lazy(() => import('../pages/TableManagementPage'));
@@ -27,7 +37,55 @@ const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
+        {/* 1. Public Restaurant Website Experience (No Login Required) */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/menu"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <MenuPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <AboutPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <ContactPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <CheckoutPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/track/:trackingToken"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <OrderTrackingPage />
+              </Suspense>
+            }
+          />
+        </Route>
+
+        {/* 2. Staff Authentication Entry Point */}
         <Route path="/login" element={<LoginPage />} />
+
+        {/* 3. Internal Protected POS System */}
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
@@ -45,6 +103,14 @@ const AppRouter: React.FC = () => {
               element={
                 <Suspense fallback={<PageFallback />}>
                   <LiveOrdersPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/admin/website-orders"
+              element={
+                <Suspense fallback={<PageFallback />}>
+                  <WebsiteOrdersPage />
                 </Suspense>
               }
             />
@@ -90,8 +156,9 @@ const AppRouter: React.FC = () => {
             />
           </Route>
         </Route>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

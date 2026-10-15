@@ -71,6 +71,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['Cinzel', 'Georgia', 'serif'],
       },
       boxShadow: {
         subtle: '0 1px 3px 0 rgba(21, 61, 53, 0.05), 0 1px 2px -1px rgba(21, 61, 53, 0.05)',

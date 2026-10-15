@@ -4,13 +4,65 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Mahalaxmi Hotel - Point of Sale System" />
-    <title>Mahalaxmi POS</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>Hotel Mahalaxmi — Authentic Kolhapuri Dining & Thali, Ispurli</title>
+    <meta name="title" content="Hotel Mahalaxmi — Authentic Kolhapuri Dining & Thali, Ispurli" />
+    <meta name="description" content="Experience authentic Kolhapuri cuisine at Hotel Mahalaxmi, Ispurli. Famous for our Special Mahalaxmi Thali, Mutton & Chicken Thalis, Tambda-Pandhra Rassa, and fresh takeaway parcels." />
+    <meta name="keywords" content="Hotel Mahalaxmi, Mahalaxmi Hotel Ispurli, Kolhapur Thali, Special Mutton Thali, Chicken Thali Kolhapur, Tambda Pandhra Rassa, Restaurant in Ispurli, Karveer dining" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#153D35" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:url" content="https://hotel-mahalaxami.vercel.app/" />
+    <meta property="og:title" content="Hotel Mahalaxmi — Authentic Kolhapuri Dining & Thali, Ispurli" />
+    <meta property="og:description" content="Authentic Kolhapuri flavors, specialty thalis, and pure home-style recipes at Hotel Mahalaxmi, Ispurli. Browse menu and order takeaway online." />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Hotel Mahalaxmi — Authentic Kolhapuri Dining & Thali, Ispurli" />
+    <meta name="twitter:description" content="Authentic Kolhapuri flavors, specialty thalis, and pure home-style recipes at Hotel Mahalaxmi, Ispurli." />
+
+    <!-- Structured Data (JSON-LD) for Local Restaurant -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Hotel Mahalaxmi",
+      "image": "https://hotel-mahalaxami.vercel.app/logo.png",
+      "servesCuisine": ["Kolhapuri", "Maharashtrian", "Indian"],
+      "priceRange": "₹₹",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Ispurli",
+        "addressRegion": "Maharashtra",
+        "postalCode": "416001",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 16.58,
+        "longitude": 74.22
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+          "opens": "11:30",
+          "closes": "23:00"
+        }
+      ],
+      "hasMenu": "https://hotel-mahalaxami.vercel.app/menu"
+    }
+    </script>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   </head>
-  <body>
+  <body class="bg-ivory text-pos-text antialiased selection:bg-forest-100 selection:text-forest-900">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

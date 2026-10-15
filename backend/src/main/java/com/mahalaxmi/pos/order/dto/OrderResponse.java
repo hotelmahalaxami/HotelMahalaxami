@@ -1,6 +1,8 @@
 package com.mahalaxmi.pos.order.dto;
 
+import com.mahalaxmi.pos.order.entity.AcceptanceStatus;
 import com.mahalaxmi.pos.order.entity.Order;
+import com.mahalaxmi.pos.order.entity.OrderSource;
 import com.mahalaxmi.pos.order.entity.OrderStatus;
 import com.mahalaxmi.pos.order.entity.OrderType;
 
@@ -18,6 +20,12 @@ public record OrderResponse(
         String notes,
         String createdByUsername,
         List<OrderItemResponse> items,
+        OrderSource orderSource,
+        AcceptanceStatus acceptanceStatus,
+        String customerName,
+        String customerPhone,
+        String pickupNotes,
+        String trackingToken,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -36,6 +44,12 @@ public record OrderResponse(
                 order.getNotes(),
                 order.getCreatedBy() != null ? order.getCreatedBy().getUsername() : null,
                 itemResponses,
+                order.getOrderSource(),
+                order.getAcceptanceStatus(),
+                order.getCustomerName(),
+                order.getCustomerPhone(),
+                order.getPickupNotes(),
+                order.getTrackingToken(),
                 order.getCreatedAt(),
                 order.getUpdatedAt()
         );

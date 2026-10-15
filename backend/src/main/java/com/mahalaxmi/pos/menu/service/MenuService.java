@@ -8,6 +8,7 @@ public interface MenuService {
     // Public/Staff
     List<MenuCategoryResponse> getActiveCategories();
     List<MenuItemResponse> getAvailableItems(Long categoryId, String search);
+    PublicMenuResponse getPublicMenu();
 
     // Admin Category Management
     List<MenuCategoryResponse> getAllCategoriesAdmin();

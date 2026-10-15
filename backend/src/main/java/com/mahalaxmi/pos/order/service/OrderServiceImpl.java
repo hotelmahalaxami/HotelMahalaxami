@@ -111,6 +111,7 @@ public class OrderServiceImpl implements OrderService {
                 : orderRepository.findAllWithItems();
 
         return orders.stream()
+                .filter(o -> o.getOrderSource() != OrderSource.WEBSITE || o.getAcceptanceStatus() != AcceptanceStatus.PENDING)
                 .map(OrderResponse::from)
                 .toList();
     }

@@ -58,6 +58,36 @@ public class MenuServiceImpl implements MenuService {
                 .toList();
     }
 
+    @Override
+    public PublicMenuResponse getPublicMenu() {
+        List<MenuCategory> activeCategories = categoryRepository.findByActiveTrueOrderByDisplayOrderAscNameAsc();
+        List<MenuItem> availableItems = itemRepository.findAllAvailable();
+
+        java.util.Map<Long, List<PublicMenuItemDto>> itemsByCat = availableItems.stream()
+                .map(item -> new PublicMenuItemDto(
+                        item.getId(),
+                        item.getCategory().getId(),
+                        item.getCategory().getName(),
+                        item.getName(),
+                        item.getPrice(),
+                        item.isVeg(),
+                        item.isAvailable(),
+                        item.getDisplayOrder()
+                ))
+                .collect(java.util.stream.Collectors.groupingBy(PublicMenuItemDto::categoryId));
+
+        List<PublicMenuCategoryDto> categoryDtos = activeCategories.stream()
+                .map(cat -> new PublicMenuCategoryDto(
+                        cat.getId(),
+                        cat.getName(),
+                        cat.getDisplayOrder(),
+                        itemsByCat.getOrDefault(cat.getId(), java.util.Collections.emptyList())
+                ))
+                .toList();
+
+        return new PublicMenuResponse(categoryDtos);
+    }
+
     // --- Admin Category Management ---
 
     @Override

@@ -1,6 +1,8 @@
 package com.mahalaxmi.pos.order.repository;
 
+import com.mahalaxmi.pos.order.entity.AcceptanceStatus;
 import com.mahalaxmi.pos.order.entity.Order;
+import com.mahalaxmi.pos.order.entity.OrderSource;
 import com.mahalaxmi.pos.order.entity.OrderStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -84,4 +86,27 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o.status, COUNT(o) FROM Order o GROUP BY o.status")
     List<Object[]> countOrdersByStatusRaw();
+
+    @Query("""
+        SELECT DISTINCT o FROM Order o
+        LEFT JOIN FETCH o.items i
+        WHERE o.trackingToken = :trackingToken
+    """)
+    Optional<Order> findByTrackingTokenWithItems(@Param("trackingToken") String trackingToken);
+
+    Optional<Order> findByTrackingToken(String trackingToken);
+
+    @Query("""
+        SELECT DISTINCT o FROM Order o
+        LEFT JOIN FETCH o.items i
+        WHERE o.orderSource = :orderSource
+          AND o.acceptanceStatus = :acceptanceStatus
+        ORDER BY o.createdAt DESC
+    """)
+    List<Order> findByOrderSourceAndAcceptanceStatusWithItems(
+            @Param("orderSource") OrderSource orderSource,
+            @Param("acceptanceStatus") AcceptanceStatus acceptanceStatus
+    );
+
+    long countByOrderSourceAndAcceptanceStatus(OrderSource orderSource, AcceptanceStatus acceptanceStatus);
 }

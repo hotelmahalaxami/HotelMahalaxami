@@ -28,6 +28,26 @@ public class Order {
     private OrderType orderType = OrderType.DINE_IN;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "order_source", nullable = false, length = 20)
+    private OrderSource orderSource = OrderSource.POS;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "acceptance_status", nullable = false, length = 20)
+    private AcceptanceStatus acceptanceStatus = AcceptanceStatus.ACCEPTED;
+
+    @Column(name = "customer_name", length = 100)
+    private String customerName;
+
+    @Column(name = "customer_phone", length = 20)
+    private String customerPhone;
+
+    @Column(name = "pickup_notes", length = 255)
+    private String pickupNotes;
+
+    @Column(name = "tracking_token", unique = true, length = 64)
+    private String trackingToken;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private OrderStatus status = OrderStatus.OPEN;
 
@@ -170,5 +190,53 @@ public class Order {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public OrderSource getOrderSource() {
+        return orderSource;
+    }
+
+    public void setOrderSource(OrderSource orderSource) {
+        this.orderSource = orderSource;
+    }
+
+    public AcceptanceStatus getAcceptanceStatus() {
+        return acceptanceStatus;
+    }
+
+    public void setAcceptanceStatus(AcceptanceStatus acceptanceStatus) {
+        this.acceptanceStatus = acceptanceStatus;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
+    }
+
+    public String getPickupNotes() {
+        return pickupNotes;
+    }
+
+    public void setPickupNotes(String pickupNotes) {
+        this.pickupNotes = pickupNotes;
+    }
+
+    public String getTrackingToken() {
+        return trackingToken;
+    }
+
+    public void setTrackingToken(String trackingToken) {
+        this.trackingToken = trackingToken;
     }
 }
