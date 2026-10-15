@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Order, OrderStatus } from '../types/pos';
 import type { BillResponse } from '../types/billing';
@@ -37,15 +37,28 @@ const LiveOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [billsMap, setBillsMap] = useState<Record<number, BillResponse>>({});
   const [loading, setLoading] = useState<boolean>(true);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState<string>('');
+
+  // Tab cache to prevent screen tear and flashing spinners
+  const tabCacheRef = useRef<Record<string, Order[]>>({});
+  const requestSeqRef = useRef<number>(0);
 
   // Selected order for modal inspection
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
   const loadData = useCallback(async () => {
-    setLoading(true);
+    const seq = ++requestSeqRef.current;
     setError(null);
+
+    const hasCachedTab = Boolean(tabCacheRef.current[activeTab]);
+    if (!hasCachedTab) {
+      setLoading(true);
+    } else {
+      setIsRefreshing(true);
+    }
+
     try {
       let statusParam: OrderStatus | undefined;
       if (activeTab === 'ACTIVE') {
@@ -55,29 +68,53 @@ const LiveOrdersPage: React.FC = () => {
       } else if (activeTab === 'CANCELLED') {
         statusParam = 'CANCELLED';
       }
-      // For AWAITING_PAYMENT: fetch all to separate OPEN and READY_FOR_BILL
-      const [fetchedOrders, fetchedBills] = await Promise.all([
-        orderService.getOrders(statusParam),
-        billingService.getBills().catch(() => [] as BillResponse[]),
-      ]);
 
+      // Avoid unnecessary billing requests for tabs that do not need bill data
+      const ordersPromise = orderService.getOrders(statusParam);
+      const billsPromise =
+        activeTab === 'AWAITING_PAYMENT'
+          ? billingService.getBills().catch(() => [] as BillResponse[])
+          : Promise.resolve([] as BillResponse[]);
+
+      const [fetchedOrders, fetchedBills] = await Promise.all([ordersPromise, billsPromise]);
+
+      // Guard against stale responses if tab was switched while request was inflight
+      if (seq !== requestSeqRef.current) {
+        return;
+      }
+
+      tabCacheRef.current[activeTab] = fetchedOrders;
       setOrders(fetchedOrders);
 
-      // Build orderId -> Bill map
-      const map: Record<number, BillResponse> = {};
-      fetchedBills.forEach((b) => {
-        if (b.orderId) {
-          map[b.orderId] = b;
-        }
-      });
-      setBillsMap(map);
+      // Build orderId -> Bill map only when needed
+      if (activeTab === 'AWAITING_PAYMENT') {
+        const map: Record<number, BillResponse> = {};
+        fetchedBills.forEach((b) => {
+          if (b.orderId) {
+            map[b.orderId] = b;
+          }
+        });
+        setBillsMap(map);
+      }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to load live orders';
-      setError(msg);
+      if (seq === requestSeqRef.current) {
+        const msg = err instanceof Error ? err.message : 'Failed to load live orders';
+        setError(msg);
+      }
     } finally {
-      setLoading(false);
+      if (seq === requestSeqRef.current) {
+        setLoading(false);
+        setIsRefreshing(false);
+      }
     }
   }, [activeTab]);
+
+  const handleTabChange = (newTab: TabKey) => {
+    setActiveTab(newTab);
+    if (tabCacheRef.current[newTab]) {
+      setOrders(tabCacheRef.current[newTab]);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -149,13 +186,14 @@ const LiveOrdersPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={loadData}
+            disabled={isRefreshing}
             leftIcon={
-              <svg className="h-3.5 w-3.5 text-forest-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className={`h-3.5 w-3.5 text-forest-700 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             }
           >
-            Refresh
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
           <Link to="/orders/create">
             <Button
@@ -184,7 +222,7 @@ const LiveOrdersPage: React.FC = () => {
           ].map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key as TabKey)}
+              onClick={() => handleTabChange(tab.key as TabKey)}
               className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-lg transition-colors ${
                 activeTab === tab.key
                   ? 'bg-forest-800 text-white shadow-xs'
@@ -228,7 +266,7 @@ const LiveOrdersPage: React.FC = () => {
 
       {/* Orders Table */}
       <div className="rounded-xl border border-pos-border bg-white shadow-subtle overflow-hidden">
-        {loading ? (
+        {loading && displayedOrders.length === 0 ? (
           <div className="flex h-64 items-center justify-center">
             <LoadingSpinner size="lg" />
           </div>

@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import PosOrderPage from '../../../pages/PosOrderPage';
 import { menuService } from '../../../services/menuService';
 import { orderService } from '../../../services/orderService';
+import { memoryCache } from '../../../utils/cache';
 
 vi.mock('../../../services/menuService', () => ({
   menuService: {
@@ -73,6 +74,7 @@ const mockItems = [
 describe('PosOrderPage — Stage 2 Simulation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    memoryCache.clear();
     vi.mocked(menuService.getCategories).mockResolvedValue(mockCategories);
     vi.mocked(menuService.getItems).mockResolvedValue(mockItems);
     vi.mocked(orderService.getOrders).mockResolvedValue([]);

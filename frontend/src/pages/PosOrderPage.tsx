@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { menuService } from '../services/menuService';
 import { orderService } from '../services/orderService';
 import { tableService } from '../services/tableService';
+import { memoryCache } from '../utils/cache';
 import type { ApiException } from '../types/api';
 import type { RestaurantTable } from '../types/table';
 import type {
@@ -43,10 +44,16 @@ const getRelativeTime = (isoString?: string): string => {
 
 const PosOrderPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const [categories, setCategories] = useState<MenuCategory[]>([]);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  // Fast mount: initialize from in-memory cache if available
+  const cachedCats = memoryCache.get<MenuCategory[]>('menu_categories');
+  const cachedItems = memoryCache.get<MenuItem[]>('menu_items');
+  const cachedTables = memoryCache.get<RestaurantTable[]>('restaurant_tables');
+
+  const [categories, setCategories] = useState<MenuCategory[]>(() => cachedCats ?? []);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => cachedItems ?? []);
   const [openOrders, setOpenOrders] = useState<Order[]>([]);
-  const [tables, setTables] = useState<RestaurantTable[]>([]);
+  const [tables, setTables] = useState<RestaurantTable[]>(() => cachedTables ?? []);
   const [settlingOrder, setSettlingOrder] = useState<Order | null>(null);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -60,14 +67,17 @@ const PosOrderPage: React.FC = () => {
   const [notes, setNotes] = useState<string>('');
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  // UI states
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // UI states: don't blank the screen if cached categories and menu are present
+  const [isLoading, setIsLoading] = useState<boolean>(() => !cachedCats || !cachedItems);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
-    setIsLoading(true);
+    const hasCache = memoryCache.get('menu_categories') && memoryCache.get('menu_items');
+    if (!hasCache) {
+      setIsLoading(true);
+    }
     setErrorMsg(null);
     try {
       const [cats, items, orders, fetchedTables] = await Promise.all([
@@ -80,9 +90,16 @@ const PosOrderPage: React.FC = () => {
       setMenuItems(items);
       setOpenOrders(orders);
       setTables(fetchedTables);
+
+      // Cache categories and menu items for 5 minutes, tables for 30 seconds
+      memoryCache.set('menu_categories', cats, 5 * 60 * 1000);
+      memoryCache.set('menu_items', items, 5 * 60 * 1000);
+      memoryCache.set('restaurant_tables', fetchedTables, 30 * 1000);
     } catch (err) {
       const apiErr = err as ApiException;
-      setErrorMsg(apiErr.apiError?.message ?? 'Failed to load POS menu data.');
+      if (!hasCache) {
+        setErrorMsg(apiErr.apiError?.message ?? 'Failed to load POS menu data.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -320,15 +337,6 @@ const PosOrderPage: React.FC = () => {
           notes: notes.trim() || undefined,
           items: itemsPayload,
         });
-        if (markReadyForBill) {
-          savedOrder = await orderService.updateOrder(savedOrder.id, {
-            tableNumber: savedOrder.tableNumber ?? undefined,
-            orderType: savedOrder.orderType,
-            status: 'READY_FOR_BILL',
-            notes: savedOrder.notes ?? undefined,
-            items: itemsPayload,
-          });
-        }
         setSuccessMsg(
           `Order ${savedOrder.orderNumber} placed successfully! Total: ₹${savedOrder.totalAmount}`
         );
@@ -341,6 +349,7 @@ const PosOrderPage: React.FC = () => {
       ]);
       setOpenOrders(updatedOpenOrders);
       setTables(updatedTables);
+      memoryCache.set('restaurant_tables', updatedTables, 30 * 1000);
 
       // Reset cart for next customer
       setEditingOrder(null);
@@ -373,6 +382,7 @@ const PosOrderPage: React.FC = () => {
       ]);
       setOpenOrders(updatedOpenOrders);
       setTables(updatedTables);
+      memoryCache.set('restaurant_tables', updatedTables, 30 * 1000);
       setSuccessMsg(`Order ${editingOrder.orderNumber} cancelled.`);
       clearCurrentOrder();
     } catch (err) {
@@ -927,6 +937,7 @@ const PosOrderPage: React.FC = () => {
             ]);
             setOpenOrders(updated);
             setTables(updatedTables);
+            memoryCache.set('restaurant_tables', updatedTables, 30 * 1000);
             if (editingOrder?.id === settledBill.orderId) {
               clearCurrentOrder();
             }

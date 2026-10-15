@@ -12,6 +12,7 @@ public interface OrderService {
     OrderResponse getOrderById(Long id);
     OrderResponse getOrderByNumber(String orderNumber);
     List<OrderResponse> getOrders(OrderStatus status);
+    List<OrderResponse> getRecentOrders(int limit);
     OrderResponse updateOrder(Long id, UpdateOrderRequest request);
     OrderResponse cancelOrderItem(Long orderId, Long orderItemId);
     OrderResponse cancelOrder(Long orderId);

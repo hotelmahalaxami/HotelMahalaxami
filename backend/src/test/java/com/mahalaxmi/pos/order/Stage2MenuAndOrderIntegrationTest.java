@@ -174,6 +174,14 @@ class Stage2MenuAndOrderIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.totalAmount").value(540.00));
 
+        // Verify GET /api/v1/orders/recent
+        mockMvc.perform(get("/api/v1/orders/recent?limit=5")
+                        .header("Authorization", "Bearer " + authToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", hasSize(greaterThanOrEqualTo(1))))
+                .andExpect(jsonPath("$.data[0].id").value(orderId))
+                .andExpect(jsonPath("$.data[0].items", hasSize(2)));
+
         // Verify UPDATE order: add 1 Special Mahalaxmi Thali (350) -> 340 + 200 + 350 = 890.00
         UpdateOrderRequest updateReq = new UpdateOrderRequest(
                 "Table 4",

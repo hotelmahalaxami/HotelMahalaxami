@@ -15,6 +15,13 @@ export const orderService = {
     return response.data.data;
   },
 
+  async getRecentOrders(limit: number = 8): Promise<Order[]> {
+    const response = await apiClient.get<ApiResponse<Order[]>>('/api/v1/orders/recent', {
+      params: { limit },
+    });
+    return response.data.data;
+  },
+
   async getOrderById(id: number): Promise<Order> {
     const response = await apiClient.get<ApiResponse<Order>>(`/api/v1/orders/${id}`);
     return response.data.data;

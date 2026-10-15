@@ -48,8 +48,8 @@ const DashboardPage: React.FC = () => {
     setError(null);
 
     try {
-      // Fetch recent orders (accessible to all authenticated roles)
-      const ordersPromise = orderService.getOrders().catch(() => [] as Order[]);
+      // Fetch recent 8 orders via dedicated paginated endpoint
+      const recentOrdersPromise = orderService.getRecentOrders(8).catch(() => [] as Order[]);
 
       // Fetch dashboard summary if admin
       let summaryData: DashboardSummaryResponse | null = null;
@@ -62,32 +62,27 @@ const DashboardPage: React.FC = () => {
         }
       }
 
-      const orders = await ordersPromise;
-      // Sort newest orders first
-      const sortedOrders = [...orders].sort(
-        (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-      );
-
-      setRecentOrders(sortedOrders.slice(0, 8));
+      const fetchedRecentOrders = await recentOrdersPromise;
+      setRecentOrders(fetchedRecentOrders);
 
       if (summaryData) {
         setSummary(summaryData);
       } else {
-        // Compute real day metrics from orders list if admin reports endpoint not used or user is staff
+        // For staff or fallback: fetch active open orders to show accurate active count
+        const activeOrders = await orderService.getOrders('OPEN').catch(() => [] as Order[]);
         const todayStr = new Date().toISOString().split('T')[0];
-        const todayOrders = orders.filter((o) => (o.createdAt || '').startsWith(todayStr));
-        const activeOrders = orders.filter((o) => o.status === 'OPEN' || o.status === 'READY_FOR_BILL');
-        const nonCancelledOrders = todayOrders.filter((o) => o.status !== 'CANCELLED');
+        const todayRecentOrders = fetchedRecentOrders.filter((o) => (o.createdAt || '').startsWith(todayStr));
+        const nonCancelledOrders = todayRecentOrders.filter((o) => o.status !== 'CANCELLED');
         const totalRev = nonCancelledOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
         setSummary({
           reportDate: todayStr,
           totalRevenue: totalRev,
-          totalOrdersCount: todayOrders.length,
+          totalOrdersCount: todayRecentOrders.length,
           cashTotal: 0,
           upiTotal: 0,
           cardTotal: 0,
-          cancelledOrdersCount: todayOrders.filter((o) => o.status === 'CANCELLED').length,
+          cancelledOrdersCount: todayRecentOrders.filter((o) => o.status === 'CANCELLED').length,
           openOrdersCount: activeOrders.length,
           topItem: null,
           topSellingItems: [],

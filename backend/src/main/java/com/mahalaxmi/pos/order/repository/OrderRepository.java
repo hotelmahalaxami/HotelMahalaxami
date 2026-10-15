@@ -2,6 +2,7 @@ package com.mahalaxmi.pos.order.repository;
 
 import com.mahalaxmi.pos.order.entity.Order;
 import com.mahalaxmi.pos.order.entity.OrderStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -66,4 +67,18 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
           AND o.status = com.mahalaxmi.pos.order.entity.OrderStatus.OPEN
     """)
     List<Order> findAllActiveDineInOrders();
+
+    @Query("""
+        SELECT o FROM Order o
+        LEFT JOIN FETCH o.createdBy
+        ORDER BY o.createdAt DESC
+    """)
+    List<Order> findRecentOrders(Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT o FROM Order o
+        LEFT JOIN FETCH o.items i
+        WHERE o.id IN :orderIds
+    """)
+    List<Order> fetchItemsForOrders(@Param("orderIds") List<Long> orderIds);
 }

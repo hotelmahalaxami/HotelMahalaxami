@@ -42,6 +42,14 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.ok(orders));
     }
 
+    @GetMapping("/recent")
+    public ResponseEntity<ApiResponse<List<OrderResponse>>> getRecentOrders(
+            @RequestParam(defaultValue = "8") int limit
+    ) {
+        List<OrderResponse> orders = orderService.getRecentOrders(limit);
+        return ResponseEntity.ok(ApiResponse.ok(orders));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrderById(@PathVariable Long id) {
         OrderResponse order = orderService.getOrderById(id);

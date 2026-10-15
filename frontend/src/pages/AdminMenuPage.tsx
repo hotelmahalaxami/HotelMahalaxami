@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { adminMenuService } from '../services/adminMenuService';
+import { memoryCache } from '../utils/cache';
 import type { MenuCategory, MenuItem } from '../types/pos';
 import type { CreateMenuItemRequest, UpdateMenuItemRequest } from '../types/admin';
 import Button from '../components/ui/Button';
@@ -72,6 +73,7 @@ const AdminMenuPage: React.FC = () => {
   const handleToggleAvailability = async (item: MenuItem) => {
     try {
       const updated = await adminMenuService.toggleAvailability(item.id, !item.available);
+      memoryCache.invalidate('menu_');
       setItems((prev) => prev.map((i) => (i.id === item.id ? updated : i)));
       showNotification(`${item.name} is now ${updated.available ? 'IN STOCK' : 'SOLD OUT'}`);
     } catch (err: unknown) {
@@ -100,6 +102,7 @@ const AdminMenuPage: React.FC = () => {
         displayOrder: quickPriceItem.displayOrder,
       };
       const updated = await adminMenuService.updateMenuItem(quickPriceItem.id, req);
+      memoryCache.invalidate('menu_');
       setItems((prev) => prev.map((i) => (i.id === quickPriceItem.id ? updated : i)));
       showNotification(`Price updated for ${quickPriceItem.name}: ₹${priceNum.toFixed(2)}`);
       setQuickPriceItem(null);
@@ -154,6 +157,7 @@ const AdminMenuPage: React.FC = () => {
           displayOrder: itemForm.displayOrder,
         };
         const updated = await adminMenuService.updateMenuItem(editingItem.id, req);
+        memoryCache.invalidate('menu_');
         setItems((prev) => prev.map((i) => (i.id === editingItem.id ? updated : i)));
         showNotification(`Updated item: ${updated.name}`);
       } else {
@@ -166,6 +170,7 @@ const AdminMenuPage: React.FC = () => {
           displayOrder: itemForm.displayOrder,
         };
         const created = await adminMenuService.createMenuItem(req);
+        memoryCache.invalidate('menu_');
         setItems((prev) => [...prev, created]);
         showNotification(`Created item: ${created.name}`);
       }
@@ -181,6 +186,7 @@ const AdminMenuPage: React.FC = () => {
     if (!window.confirm(`Are you sure you want to deactivate or delete "${item.name}"?`)) return;
     try {
       await adminMenuService.deleteMenuItem(item.id);
+      memoryCache.invalidate('menu_');
       setItems((prev) => prev.filter((i) => i.id !== item.id));
       showNotification(`Item "${item.name}" removed`);
     } catch (err: unknown) {
@@ -199,6 +205,7 @@ const AdminMenuPage: React.FC = () => {
         displayOrder: newCategoryOrder || categories.length + 1,
         active: true,
       });
+      memoryCache.invalidate('menu_');
       setCategories((prev) => [...prev, created]);
       setCategoryModalOpen(false);
       setNewCategoryName('');

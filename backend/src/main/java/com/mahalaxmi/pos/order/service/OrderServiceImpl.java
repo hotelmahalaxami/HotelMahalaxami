@@ -14,6 +14,8 @@ import com.mahalaxmi.pos.user.entity.User;
 import com.mahalaxmi.pos.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,6 +110,21 @@ public class OrderServiceImpl implements OrderService {
                 ? orderRepository.findByStatusWithItems(status)
                 : orderRepository.findAllWithItems();
 
+        return orders.stream()
+                .map(OrderResponse::from)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getRecentOrders(int limit) {
+        int safeLimit = Math.min(Math.max(limit, 1), 100);
+        Pageable pageable = PageRequest.of(0, safeLimit);
+        List<Order> orders = orderRepository.findRecentOrders(pageable);
+        if (!orders.isEmpty()) {
+            List<Long> orderIds = orders.stream().map(Order::getId).toList();
+            orderRepository.fetchItemsForOrders(orderIds);
+        }
         return orders.stream()
                 .map(OrderResponse::from)
                 .toList();
