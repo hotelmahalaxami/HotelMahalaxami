@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import EmptyState from '../components/ui/EmptyState';
+import { memoryCache } from '../utils/cache';
 
 const formatInr = (amount: number): string => {
   return new Intl.NumberFormat('en-IN', {
@@ -37,36 +38,41 @@ const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
-  const [summary, setSummary] = useState<DashboardSummaryResponse | null>(null);
-  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  // Fast mount: initialize from in-memory cache if available
+  const cachedSummary = memoryCache.get<DashboardSummaryResponse>('dashboard_summary');
+  const cachedRecent = memoryCache.get<Order[]>('dashboard_recent_orders');
+
+  const [summary, setSummary] = useState<DashboardSummaryResponse | null>(() => cachedSummary ?? null);
+  const [recentOrders, setRecentOrders] = useState<Order[]>(() => cachedRecent ?? []);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(() => !cachedRecent && !cachedSummary);
   const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
-    setIsLoading(true);
+    const hasCache = Boolean(memoryCache.get('dashboard_recent_orders') || memoryCache.get('dashboard_summary'));
+    if (!hasCache) {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
-      // Fetch recent 8 orders via dedicated paginated endpoint
+      // Parallelize recent orders and dashboard summary requests
       const recentOrdersPromise = orderService.getRecentOrders(8).catch(() => [] as Order[]);
+      const summaryPromise = isAdmin
+        ? reportService.getDashboardSummary().catch(() => null)
+        : Promise.resolve(null);
 
-      // Fetch dashboard summary if admin
-      let summaryData: DashboardSummaryResponse | null = null;
-      if (isAdmin) {
-        try {
-          summaryData = await reportService.getDashboardSummary();
-        } catch {
-          // If reports endpoint is inaccessible or empty, keep summaryData null
-          summaryData = null;
-        }
-      }
+      const [fetchedRecentOrders, summaryData] = await Promise.all([
+        recentOrdersPromise,
+        summaryPromise,
+      ]);
 
-      const fetchedRecentOrders = await recentOrdersPromise;
       setRecentOrders(fetchedRecentOrders);
+      memoryCache.set('dashboard_recent_orders', fetchedRecentOrders, 30 * 1000);
 
       if (summaryData) {
         setSummary(summaryData);
+        memoryCache.set('dashboard_summary', summaryData, 60 * 1000);
       } else {
         // For staff or fallback: fetch active open orders to show accurate active count
         const activeOrders = await orderService.getOrders('OPEN').catch(() => [] as Order[]);
@@ -75,7 +81,7 @@ const DashboardPage: React.FC = () => {
         const nonCancelledOrders = todayRecentOrders.filter((o) => o.status !== 'CANCELLED');
         const totalRev = nonCancelledOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
-        setSummary({
+        const fallbackSummary: DashboardSummaryResponse = {
           reportDate: todayStr,
           totalRevenue: totalRev,
           totalOrdersCount: todayRecentOrders.length,
@@ -87,11 +93,15 @@ const DashboardPage: React.FC = () => {
           topItem: null,
           topSellingItems: [],
           recentDailySales: [],
-        });
+        };
+        setSummary(fallbackSummary);
+        memoryCache.set('dashboard_summary', fallbackSummary, 30 * 1000);
       }
     } catch (err: unknown) {
       const e = err as Error;
-      setError(e.message || 'Failed to load dashboard data. Please try again.');
+      if (!hasCache) {
+        setError(e.message || 'Failed to load dashboard data. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

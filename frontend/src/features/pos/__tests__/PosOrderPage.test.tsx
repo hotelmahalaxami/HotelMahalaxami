@@ -16,6 +16,8 @@ vi.mock('../../../services/menuService', () => ({
 vi.mock('../../../services/orderService', () => ({
   orderService: {
     getOrders: vi.fn(),
+    getRecentOrders: vi.fn(),
+    getOrderStatusCounts: vi.fn(),
     createOrder: vi.fn(),
     updateOrder: vi.fn(),
     cancelOrder: vi.fn(),

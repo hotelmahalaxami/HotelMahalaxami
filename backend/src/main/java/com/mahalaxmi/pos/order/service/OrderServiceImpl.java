@@ -131,6 +131,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Map<OrderStatus, Long> getOrderStatusCounts() {
+        Map<OrderStatus, Long> countMap = new EnumMap<>(OrderStatus.class);
+        for (OrderStatus status : OrderStatus.values()) {
+            countMap.put(status, 0L);
+        }
+
+        List<Object[]> rawCounts = orderRepository.countOrdersByStatusRaw();
+        for (Object[] row : rawCounts) {
+            OrderStatus status = (OrderStatus) row[0];
+            Long count = ((Number) row[1]).longValue();
+            if (status != null) {
+                countMap.put(status, count);
+            }
+        }
+        return countMap;
+    }
+
+    @Override
     @Transactional
     public OrderResponse updateOrder(Long id, UpdateOrderRequest request) {
         Order order = orderRepository.findByIdWithItems(id)

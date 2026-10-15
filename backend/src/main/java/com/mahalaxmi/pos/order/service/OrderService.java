@@ -6,6 +6,7 @@ import com.mahalaxmi.pos.order.dto.UpdateOrderRequest;
 import com.mahalaxmi.pos.order.entity.OrderStatus;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
     OrderResponse createOrder(CreateOrderRequest request, String username);
@@ -13,6 +14,7 @@ public interface OrderService {
     OrderResponse getOrderByNumber(String orderNumber);
     List<OrderResponse> getOrders(OrderStatus status);
     List<OrderResponse> getRecentOrders(int limit);
+    Map<OrderStatus, Long> getOrderStatusCounts();
     OrderResponse updateOrder(Long id, UpdateOrderRequest request);
     OrderResponse cancelOrderItem(Long orderId, Long orderItemId);
     OrderResponse cancelOrder(Long orderId);

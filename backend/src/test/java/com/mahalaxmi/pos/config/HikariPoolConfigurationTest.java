@@ -27,8 +27,8 @@ class HikariPoolConfigurationTest {
         assertThat(dataSource).isInstanceOf(HikariDataSource.class);
         HikariDataSource hikariDataSource = (HikariDataSource) dataSource;
 
-        // Verify the conservative pool limits requested for small deployments while keeping 1 warm connection
-        assertThat(hikariDataSource.getMaximumPoolSize()).isEqualTo(3);
+        // Verify the conservative pool limits configured for Aiven PostgreSQL (max 5)
+        assertThat(hikariDataSource.getMaximumPoolSize()).isEqualTo(5);
         assertThat(hikariDataSource.getMinimumIdle()).isEqualTo(1);
         assertThat(hikariDataSource.getConnectionTimeout()).isEqualTo(30000);
         assertThat(hikariDataSource.getKeepaliveTime()).isEqualTo(300000);

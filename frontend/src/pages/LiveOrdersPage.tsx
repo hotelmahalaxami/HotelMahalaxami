@@ -36,6 +36,17 @@ const LiveOrdersPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabKey>('ACTIVE');
   const [orders, setOrders] = useState<Order[]>([]);
   const [billsMap, setBillsMap] = useState<Record<number, BillResponse>>({});
+  const [statusCounts, setStatusCounts] = useState<{
+    OPEN: number;
+    READY_FOR_BILL: number;
+    COMPLETED: number;
+    CANCELLED: number;
+  }>({
+    OPEN: 0,
+    READY_FOR_BILL: 0,
+    COMPLETED: 0,
+    CANCELLED: 0,
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,8 +86,13 @@ const LiveOrdersPage: React.FC = () => {
         activeTab === 'AWAITING_PAYMENT'
           ? billingService.getBills().catch(() => [] as BillResponse[])
           : Promise.resolve([] as BillResponse[]);
+      const countsPromise = orderService.getOrderStatusCounts().catch(() => null);
 
-      const [fetchedOrders, fetchedBills] = await Promise.all([ordersPromise, billsPromise]);
+      const [fetchedOrders, fetchedBills, fetchedCounts] = await Promise.all([
+        ordersPromise,
+        billsPromise,
+        countsPromise,
+      ]);
 
       // Guard against stale responses if tab was switched while request was inflight
       if (seq !== requestSeqRef.current) {
@@ -85,6 +101,15 @@ const LiveOrdersPage: React.FC = () => {
 
       tabCacheRef.current[activeTab] = fetchedOrders;
       setOrders(fetchedOrders);
+
+      if (fetchedCounts) {
+        setStatusCounts({
+          OPEN: fetchedCounts.OPEN ?? 0,
+          READY_FOR_BILL: fetchedCounts.READY_FOR_BILL ?? 0,
+          COMPLETED: fetchedCounts.COMPLETED ?? 0,
+          CANCELLED: fetchedCounts.CANCELLED ?? 0,
+        });
+      }
 
       // Build orderId -> Bill map only when needed
       if (activeTab === 'AWAITING_PAYMENT') {
@@ -155,22 +180,6 @@ const LiveOrdersPage: React.FC = () => {
     });
   }, [tabFilteredOrders, search]);
 
-  const counts = useMemo(() => {
-    let active = 0;
-    let awaiting = 0;
-    let completed = 0;
-    let cancelled = 0;
-
-    orders.forEach((o) => {
-      if (o.status === 'OPEN') active++;
-      if (o.status === 'READY_FOR_BILL') awaiting++;
-      if (o.status === 'COMPLETED') completed++;
-      if (o.status === 'CANCELLED') cancelled++;
-    });
-
-    return { active, awaiting, completed, cancelled };
-  }, [orders]);
-
   return (
     <div className="space-y-6">
       {/* Page Title & Action Bar */}
@@ -215,10 +224,10 @@ const LiveOrdersPage: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-pos-border pb-1">
         <div className="flex items-center gap-2 overflow-x-auto">
           {[
-            { key: 'ACTIVE', label: 'Active Orders', count: counts.active, color: 'forest' },
-            { key: 'AWAITING_PAYMENT', label: 'Awaiting Payment', count: counts.awaiting, color: 'warning' },
-            { key: 'COMPLETED', label: 'Paid / Completed', count: counts.completed, color: 'success' },
-            { key: 'CANCELLED', label: 'Cancelled', count: counts.cancelled, color: 'neutral' },
+            { key: 'ACTIVE', label: 'Active Orders', count: statusCounts.OPEN, color: 'forest' },
+            { key: 'AWAITING_PAYMENT', label: 'Awaiting Payment', count: statusCounts.READY_FOR_BILL, color: 'warning' },
+            { key: 'COMPLETED', label: 'Paid / Completed', count: statusCounts.COMPLETED, color: 'success' },
+            { key: 'CANCELLED', label: 'Cancelled', count: statusCounts.CANCELLED, color: 'neutral' },
           ].map((tab) => (
             <button
               key={tab.key}

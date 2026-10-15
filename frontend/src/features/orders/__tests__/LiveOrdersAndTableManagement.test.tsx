@@ -14,6 +14,7 @@ vi.mock('../../../services/orderService', () => ({
     getOrderById: vi.fn(),
     getOrderByNumber: vi.fn(),
     cancelOrder: vi.fn(),
+    getOrderStatusCounts: vi.fn(),
   },
 }));
 
@@ -112,6 +113,12 @@ describe('LiveOrdersPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(orderService.getOrders).mockResolvedValue(mockOrders);
+    vi.mocked(orderService.getOrderStatusCounts).mockResolvedValue({
+      OPEN: 1,
+      READY_FOR_BILL: 1,
+      COMPLETED: 0,
+      CANCELLED: 0,
+    });
     vi.mocked(billingService.getBills).mockResolvedValue([]);
   });
 

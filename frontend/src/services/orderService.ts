@@ -22,6 +22,13 @@ export const orderService = {
     return response.data.data;
   },
 
+  async getOrderStatusCounts(): Promise<Record<OrderStatus, number>> {
+    const response = await apiClient.get<ApiResponse<Record<OrderStatus, number>>>(
+      '/api/v1/orders/status-counts'
+    );
+    return response.data.data;
+  },
+
   async getOrderById(id: number): Promise<Order> {
     const response = await apiClient.get<ApiResponse<Order>>(`/api/v1/orders/${id}`);
     return response.data.data;

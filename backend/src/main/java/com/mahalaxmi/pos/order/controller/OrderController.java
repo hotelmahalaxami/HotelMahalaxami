@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -48,6 +49,12 @@ public class OrderController {
     ) {
         List<OrderResponse> orders = orderService.getRecentOrders(limit);
         return ResponseEntity.ok(ApiResponse.ok(orders));
+    }
+
+    @GetMapping("/status-counts")
+    public ResponseEntity<ApiResponse<Map<OrderStatus, Long>>> getOrderStatusCounts() {
+        Map<OrderStatus, Long> counts = orderService.getOrderStatusCounts();
+        return ResponseEntity.ok(ApiResponse.ok(counts));
     }
 
     @GetMapping("/{id}")
