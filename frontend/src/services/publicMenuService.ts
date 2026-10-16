@@ -1,4 +1,5 @@
 import publicApiClient from './publicApiClient';
+import type { ApiResponse } from '../types/api';
 import type { PublicMenuResponse, PublicMenuCategory, PublicMenuItem } from '../types/publicMenu';
 import { memoryCache } from '../utils/cache';
 
@@ -18,17 +19,29 @@ export const publicMenuService = {
       }
     }
 
-    const response = await publicApiClient.get<PublicMenuResponse>('/api/v1/public/menu');
-    memoryCache.set(PUBLIC_MENU_CACHE_KEY, response.data, PUBLIC_MENU_TTL_MS);
-    return response.data;
+    const response = await publicApiClient.get<ApiResponse<PublicMenuResponse> | PublicMenuResponse>(
+      '/api/v1/public/menu'
+    );
+    const raw = response.data;
+    const menuData: PublicMenuResponse =
+      'data' in raw && raw.data && 'categories' in raw.data
+        ? raw.data
+        : 'categories' in raw
+        ? raw
+        : { categories: [] };
+    memoryCache.set(PUBLIC_MENU_CACHE_KEY, menuData, PUBLIC_MENU_TTL_MS);
+    return menuData;
   },
 
   /**
    * Fetch public categories only.
    */
   async getPublicCategories(): Promise<PublicMenuCategory[]> {
-    const response = await publicApiClient.get<PublicMenuCategory[]>('/api/v1/public/menu/categories');
-    return response.data;
+    const response = await publicApiClient.get<ApiResponse<PublicMenuCategory[]> | PublicMenuCategory[]>(
+      '/api/v1/public/menu/categories'
+    );
+    const raw = response.data;
+    return 'data' in raw && Array.isArray(raw.data) ? raw.data : Array.isArray(raw) ? raw : [];
   },
 
   /**
@@ -36,8 +49,12 @@ export const publicMenuService = {
    */
   async getPublicItems(categoryId?: number): Promise<PublicMenuItem[]> {
     const params = categoryId ? { categoryId } : undefined;
-    const response = await publicApiClient.get<PublicMenuItem[]>('/api/v1/public/menu/items', { params });
-    return response.data;
+    const response = await publicApiClient.get<ApiResponse<PublicMenuItem[]> | PublicMenuItem[]>(
+      '/api/v1/public/menu/items',
+      { params }
+    );
+    const raw = response.data;
+    return 'data' in raw && Array.isArray(raw.data) ? raw.data : Array.isArray(raw) ? raw : [];
   },
 
   /**
