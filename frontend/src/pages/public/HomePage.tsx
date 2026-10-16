@@ -72,119 +72,82 @@ const featuredDishes: FeaturedDish[] = [
 const HomePage: React.FC = () => {
   return (
     <div className="space-y-20 sm:space-y-28">
-      {/* 1. Hero Section */}
-      <section className="relative overflow-hidden bg-forest-900 text-white pt-16 pb-20 sm:pt-24 sm:pb-32">
-        {/* Subtle decorative background patterns */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#C96F43_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-forest-700/30 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-terracotta/20 blur-3xl pointer-events-none" />
+      {/* 1. Hero Section with Background Video */}
+      <section className="relative overflow-hidden bg-forest-950 text-white pt-20 pb-24 sm:pt-28 sm:pb-36 min-h-[550px] sm:min-h-[640px] flex items-center">
+        {/* Full-bleed Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        >
+          <source src="/hotelmh.mp4" type="video/mp4" />
+        </video>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7">
-              {/* Top pill badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest-800/80 border border-forest-700/60 text-xs font-medium text-terracotta-200 mb-6 backdrop-blur-sm shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-terracotta animate-pulse" />
-                <span>Authentic Kolhapuri Heritage &bull; Ispurli, Maharashtra</span>
-              </div>
+        {/* Cinematic contrast overlay to guarantee perfect text readability */}
+        <div className="absolute inset-0 bg-black/60 sm:bg-black/50 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-forest-950/95 via-forest-950/75 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-transparent to-black/50 pointer-events-none" />
 
-              {/* Main Headline */}
-              <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight sm:leading-none">
-                Taste the True Essence of{' '}
-                <span className="text-terracotta-300 italic font-normal">Kolhapuri Hospitality</span>
-              </h1>
-
-              {/* Introduction paragraph */}
-              <p className="mt-6 text-base sm:text-lg text-forest-200 leading-relaxed max-w-2xl font-sans">
-                Welcome to <strong>{RESTAURANT_CONFIG.name}</strong>. Renowned for our signature mutton and chicken thalis, aromatic Tambda and Pandhra rassa, freshly baked jowar bhakri, and wholesome vegetarian feasts in Ispurli.
-              </p>
-
-              {/* Action Buttons */}
-              <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                <Link
-                  to="/menu"
-                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg bg-terracotta text-white font-medium text-sm shadow-md hover:bg-terracotta-600 transition-all hover:scale-102 focus:outline-none focus:ring-2 focus:ring-terracotta-400 active:scale-98"
-                >
-                  <span>Explore Our Menu</span>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </Link>
-
-                <a
-                  href={RESTAURANT_CONFIG.location.googleMapsDirectionsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg bg-forest-800/80 border border-forest-700/80 text-white font-medium text-sm hover:bg-forest-800 hover:border-forest-600 transition-all hover:scale-102 focus:outline-none focus:ring-2 focus:ring-forest-500"
-                >
-                  <svg className="w-4 h-4 text-terracotta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span>Get Directions (Ispurli)</span>
-                </a>
-              </div>
-
-              {/* Quick Badges below Hero */}
-              <div className="mt-12 pt-8 border-t border-forest-800/80 grid grid-cols-2 sm:grid-cols-3 gap-6">
-                <div>
-                  <p className="font-serif text-xl sm:text-2xl font-bold text-white">100%</p>
-                  <p className="text-xs text-forest-300 mt-0.5">Authentic Kolhapur Recipes</p>
-                </div>
-                <div>
-                  <p className="font-serif text-xl sm:text-2xl font-bold text-white">Daily Fresh</p>
-                  <p className="text-xs text-forest-300 mt-0.5">Tambda &amp; Pandhra Rassa</p>
-                </div>
-                <div className="col-span-2 sm:col-span-1">
-                  <p className="font-serif text-xl sm:text-2xl font-bold text-white">Family Dining</p>
-                  <p className="text-xs text-forest-300 mt-0.5">&amp; Hot Parcel Takeaway</p>
-                </div>
-              </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
+          <div className="max-w-3xl">
+            {/* Top pill badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forest-950/80 border border-forest-600/60 text-xs font-semibold text-terracotta-200 mb-6 backdrop-blur-md shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-terracotta animate-pulse" />
+              <span className="tracking-wide">Authentic Kolhapuri Heritage &bull; Ispurli, Maharashtra</span>
             </div>
 
-            {/* Hero Right Visual Column with floating badges */}
-            <div className="lg:col-span-5 relative hidden lg:block">
-              <div className="relative mx-auto max-w-md">
-                {/* Ambient glow */}
-                <div className="absolute -inset-1.5 bg-gradient-to-r from-terracotta/30 to-emerald-700/30 rounded-3xl blur-2xl opacity-70 pointer-events-none" />
+            {/* Main Headline */}
+            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight sm:leading-none drop-shadow-lg">
+              Taste the True Essence of{' '}
+              <span className="text-terracotta-300 italic font-normal drop-shadow-md">Kolhapuri Hospitality</span>
+            </h1>
 
-                {/* Main Hero Dish Card */}
-                <div className="relative rounded-2xl overflow-hidden border border-forest-700/70 bg-forest-950 shadow-2xl group">
-                  <img
-                    src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80"
-                    alt="Authentic Special Mahalaxmi Thali"
-                    className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950/90 via-forest-950/20 to-black/30" />
+            {/* Introduction paragraph */}
+            <p className="mt-6 text-base sm:text-lg text-stone-100 leading-relaxed max-w-2xl font-sans drop-shadow-md">
+              Welcome to <strong className="text-white font-bold">{RESTAURANT_CONFIG.name}</strong>. Renowned for our signature mutton and chicken thalis, aromatic Tambda and Pandhra rassa, freshly baked jowar bhakri, and wholesome vegetarian feasts in Ispurli.
+            </p>
 
-                  {/* Overlay text in hero image */}
-                  <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-forest-900/90 backdrop-blur-md border border-forest-700/60 shadow-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-[11px] font-semibold text-terracotta-300 uppercase tracking-widest font-sans">
-                          Royal Non-Veg Feast
-                        </span>
-                        <h3 className="font-serif font-bold text-white text-lg">
-                          Mahalaxmi Royal Thali Feast
-                        </h3>
-                      </div>
-                      <span className="font-serif font-bold text-white text-lg bg-terracotta/90 px-3 py-1 rounded-lg shadow-sm">
-                        ₹350
-                      </span>
-                    </div>
-                  </div>
-                </div>
+            {/* Action Buttons */}
+            <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <Link
+                to="/menu"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg bg-terracotta text-white font-medium text-sm shadow-xl hover:bg-terracotta-600 transition-all hover:scale-102 focus:outline-none focus:ring-2 focus:ring-terracotta-400 active:scale-98"
+              >
+                <span>Explore Our Menu</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
 
-                {/* Floating animated badges */}
-                <div className="absolute -top-4 -right-4 bg-white/95 backdrop-blur-md text-forest-950 px-3.5 py-2 rounded-xl shadow-lg border border-pos-border animate-float text-xs font-semibold flex items-center gap-2">
-                  <span className="text-base">🌶️</span>
-                  <span>Stone-Ground Masala</span>
-                </div>
+              <a
+                href={RESTAURANT_CONFIG.location.googleMapsDirectionsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg bg-black/45 border border-white/30 text-white font-medium text-sm backdrop-blur-md hover:bg-black/65 hover:border-white/50 transition-all hover:scale-102 focus:outline-none focus:ring-2 focus:ring-white/40 shadow-xl"
+              >
+                <svg className="w-4 h-4 text-terracotta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Get Directions (Ispurli)</span>
+              </a>
+            </div>
 
-                <div className="absolute -bottom-4 -left-4 bg-white/95 backdrop-blur-md text-forest-950 px-3.5 py-2 rounded-xl shadow-lg border border-pos-border animate-float-delayed text-xs font-semibold flex items-center gap-2">
-                  <span className="text-base">🍲</span>
-                  <span>Tambda &amp; Pandhra Rassa</span>
-                </div>
+            {/* Quick Badges below Hero */}
+            <div className="mt-12 pt-8 border-t border-white/20 grid grid-cols-2 sm:grid-cols-3 gap-6">
+              <div>
+                <p className="font-serif text-xl sm:text-2xl font-bold text-white drop-shadow-md">100%</p>
+                <p className="text-xs text-stone-200 mt-0.5 drop-shadow">Authentic Kolhapur Recipes</p>
+              </div>
+              <div>
+                <p className="font-serif text-xl sm:text-2xl font-bold text-white drop-shadow-md">Daily Fresh</p>
+                <p className="text-xs text-stone-200 mt-0.5 drop-shadow">Tambda &amp; Pandhra Rassa</p>
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <p className="font-serif text-xl sm:text-2xl font-bold text-white drop-shadow-md">Family Dining</p>
+                <p className="text-xs text-stone-200 mt-0.5 drop-shadow">&amp; Hot Parcel Takeaway</p>
               </div>
             </div>
           </div>
