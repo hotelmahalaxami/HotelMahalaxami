@@ -85,10 +85,9 @@ const HomePage: React.FC = () => {
           <source src="/hotelmh.mp4" type="video/mp4" />
         </video>
 
-        {/* Cinematic contrast overlay to guarantee perfect text readability */}
-        <div className="absolute inset-0 bg-black/60 sm:bg-black/50 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-forest-950/95 via-forest-950/75 to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-transparent to-black/50 pointer-events-none" />
+        {/* Soft directional gradient overlay: subtle on left for text readability, clear and bright on right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/15 pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
           <div className="max-w-3xl">
