@@ -14,13 +14,10 @@ import HomePage from '../pages/public/HomePage';
 const MenuPage = lazy(() => import('../pages/public/MenuPage'));
 const AboutPage = lazy(() => import('../pages/public/AboutPage'));
 const ContactPage = lazy(() => import('../pages/public/ContactPage'));
-const CheckoutPage = lazy(() => import('../pages/public/CheckoutPage'));
-const OrderTrackingPage = lazy(() => import('../pages/public/OrderTrackingPage'));
 
 // Lazy-loaded internal POS pages
 const PosOrderPage = lazy(() => import('../pages/PosOrderPage'));
 const LiveOrdersPage = lazy(() => import('../pages/LiveOrdersPage'));
-const WebsiteOrdersPage = lazy(() => import('../pages/WebsiteOrdersPage'));
 const BillingHistoryPage = lazy(() => import('../pages/BillingHistoryPage'));
 const AdminMenuPage = lazy(() => import('../pages/AdminMenuPage'));
 const TableManagementPage = lazy(() => import('../pages/TableManagementPage'));
@@ -64,22 +61,6 @@ const AppRouter: React.FC = () => {
               </Suspense>
             }
           />
-          <Route
-            path="/checkout"
-            element={
-              <Suspense fallback={<PageFallback />}>
-                <CheckoutPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/track/:trackingToken"
-            element={
-              <Suspense fallback={<PageFallback />}>
-                <OrderTrackingPage />
-              </Suspense>
-            }
-          />
         </Route>
 
         {/* 2. Staff Authentication Entry Point */}
@@ -106,14 +87,7 @@ const AppRouter: React.FC = () => {
                 </Suspense>
               }
             />
-            <Route
-              path="/admin/website-orders"
-              element={
-                <Suspense fallback={<PageFallback />}>
-                  <WebsiteOrdersPage />
-                </Suspense>
-              }
-            />
+
             <Route
               path="/billing"
               element={

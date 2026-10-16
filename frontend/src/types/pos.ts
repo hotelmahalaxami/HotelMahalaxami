@@ -60,12 +60,6 @@ export interface Order {
   notes: string | null;
   createdByUsername: string | null;
   items: OrderItem[];
-  orderSource?: 'POS' | 'WEBSITE';
-  acceptanceStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED';
-  customerName?: string | null;
-  customerPhone?: string | null;
-  pickupNotes?: string | null;
-  trackingToken?: string | null;
   createdAt: string;
   updatedAt: string;
 }

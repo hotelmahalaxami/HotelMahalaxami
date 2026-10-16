@@ -21,10 +21,4 @@ export interface PublicMenuResponse {
   categories: PublicMenuCategory[];
 }
 
-export interface CartItem {
-  menuItem: PublicMenuItem;
-  quantity: number;
-  notes?: string;
-}
-
 export type VegFilterOption = 'ALL' | 'VEG' | 'NON_VEG';

@@ -97,7 +97,7 @@ const HomePage: React.FC = () => {
                 to="/menu"
                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg bg-terracotta text-white font-medium text-sm shadow-md hover:bg-terracotta-600 transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-400 active:scale-98"
               >
-                <span>Explore Full Menu &amp; Order</span>
+                <span>Explore Our Menu</span>
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
@@ -194,7 +194,7 @@ const HomePage: React.FC = () => {
                   to="/menu"
                   className="text-xs font-semibold text-forest-800 hover:text-terracotta transition-colors flex items-center gap-1"
                 >
-                  <span>Order item</span>
+                  <span>View in Menu</span>
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -420,13 +420,13 @@ const HomePage: React.FC = () => {
 
               <div className="mt-8 pt-6 border-t border-forest-800 text-xs text-forest-400">
                 <p>
-                  Looking to place an online order for instant counter pickup?
+                  Planning to visit or pick up food directly from the counter?
                 </p>
                 <Link
                   to="/menu"
                   className="inline-block mt-2 font-semibold text-terracotta-300 hover:text-terracotta-200 transition-colors"
                 >
-                  Browse Menu &amp; Start Order &rarr;
+                  Explore Complete Food Menu &rarr;
                 </Link>
               </div>
             </div>

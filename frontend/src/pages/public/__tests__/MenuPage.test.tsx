@@ -2,7 +2,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import MenuPage from '../MenuPage';
-import { CartProvider } from '../../../features/public/cart/CartContext';
 import publicMenuService from '../../../services/publicMenuService';
 import type { PublicMenuResponse } from '../../../types/publicMenu';
 
@@ -10,7 +9,7 @@ const mockMenuResponse: PublicMenuResponse = {
   categories: [
     {
       id: 1,
-      name: 'Thali Feasts',
+      name: 'Thali',
       displayOrder: 1,
       items: [
         {
@@ -18,7 +17,7 @@ const mockMenuResponse: PublicMenuResponse = {
           name: 'Special Mahalaxmi Thali',
           price: 350,
           categoryId: 1,
-          categoryName: 'Thali Feasts',
+          categoryName: 'Thali',
           isVeg: false,
           available: true,
           displayOrder: 1,
@@ -29,7 +28,7 @@ const mockMenuResponse: PublicMenuResponse = {
           name: 'Special Veg Thali',
           price: 170,
           categoryId: 1,
-          categoryName: 'Thali Feasts',
+          categoryName: 'Thali',
           isVeg: true,
           available: true,
           displayOrder: 2,
@@ -39,7 +38,7 @@ const mockMenuResponse: PublicMenuResponse = {
     },
     {
       id: 2,
-      name: 'Kolhapuri Chicken',
+      name: 'Chicken',
       displayOrder: 2,
       items: [
         {
@@ -47,7 +46,7 @@ const mockMenuResponse: PublicMenuResponse = {
           name: 'Chicken Sukka',
           price: 210,
           categoryId: 2,
-          categoryName: 'Kolhapuri Chicken',
+          categoryName: 'Chicken',
           isVeg: false,
           available: true,
           displayOrder: 1,
@@ -57,7 +56,7 @@ const mockMenuResponse: PublicMenuResponse = {
           name: 'Chicken Handi Full',
           price: 580,
           categoryId: 2,
-          categoryName: 'Kolhapuri Chicken',
+          categoryName: 'Chicken',
           isVeg: false,
           available: false,
           displayOrder: 2,
@@ -76,14 +75,12 @@ describe('MenuPage Component', () => {
   const renderMenuPage = (initialEntries = ['/menu']) => {
     return render(
       <MemoryRouter initialEntries={initialEntries}>
-        <CartProvider>
-          <MenuPage />
-        </CartProvider>
+        <MenuPage />
       </MemoryRouter>
     );
   };
 
-  it('renders loading state initially and then displays menu items', async () => {
+  it('renders loading state initially and then displays menu items with prices', async () => {
     vi.spyOn(publicMenuService, 'getPublicMenu').mockResolvedValueOnce(mockMenuResponse);
 
     renderMenuPage();
@@ -97,9 +94,11 @@ describe('MenuPage Component', () => {
     expect(screen.getByText('Special Veg Thali')).toBeInTheDocument();
     expect(screen.getByText('Chicken Sukka')).toBeInTheDocument();
     expect(screen.getByText('Chicken Handi Full')).toBeInTheDocument();
+    expect(screen.getByText('₹350.00')).toBeInTheDocument();
+    expect(screen.getByText('₹170.00')).toBeInTheDocument();
   });
 
-  it('filters items by Veg and Non-Veg toggle', async () => {
+  it('filters dishes by veg and non-veg buttons', async () => {
     vi.spyOn(publicMenuService, 'getPublicMenu').mockResolvedValueOnce(mockMenuResponse);
 
     renderMenuPage();
@@ -139,33 +138,7 @@ describe('MenuPage Component', () => {
     expect(screen.queryByText('Special Veg Thali')).not.toBeInTheDocument();
   });
 
-  it('adds an item to cart and renders quantity stepper', async () => {
-    vi.spyOn(publicMenuService, 'getPublicMenu').mockResolvedValueOnce(mockMenuResponse);
-
-    renderMenuPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Special Mahalaxmi Thali')).toBeInTheDocument();
-    });
-
-    const addBtn = screen.getByRole('button', { name: /Add Special Mahalaxmi Thali to cart/i });
-    fireEvent.click(addBtn);
-
-    // Quantity should now show 1
-    expect(screen.getByLabelText(/Decrease quantity of Special Mahalaxmi Thali/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Increase quantity of Special Mahalaxmi Thali/i)).toBeInTheDocument();
-
-    // Floating cart bar should appear with subtotal
-    expect(screen.getByText(/1 item in takeaway cart/i)).toBeInTheDocument();
-    expect(screen.getByText(/Subtotal: ₹350.00/i)).toBeInTheDocument();
-
-    // Click increment
-    fireEvent.click(screen.getByLabelText(/Increase quantity of Special Mahalaxmi Thali/i));
-    expect(screen.getByText(/2 items in takeaway cart/i)).toBeInTheDocument();
-    expect(screen.getByText(/Subtotal: ₹700.00/i)).toBeInTheDocument();
-  });
-
-  it('disables or marks unavailable items and hides Add to Cart button', async () => {
+  it('displays unavailable badge for out-of-stock items', async () => {
     vi.spyOn(publicMenuService, 'getPublicMenu').mockResolvedValueOnce(mockMenuResponse);
 
     renderMenuPage();
@@ -175,7 +148,6 @@ describe('MenuPage Component', () => {
     });
 
     expect(screen.getByText(/Currently Unavailable/i)).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Add Chicken Handi Full to cart/i })).not.toBeInTheDocument();
   });
 
   it('renders error state and retries on failure', async () => {

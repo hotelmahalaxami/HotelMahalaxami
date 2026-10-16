@@ -55,17 +55,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(RateLimitExceededException.class)
-    public ResponseEntity<ApiError> handleRateLimitExceededException(
-            RateLimitExceededException ex, HttpServletRequest request) {
-        ApiError apiError = ApiError.of(
-                HttpStatus.TOO_MANY_REQUESTS.value(),
-                "Too Many Requests",
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return new ResponseEntity<>(apiError, HttpStatus.TOO_MANY_REQUESTS);
-    }
+
 
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ApiError> handleDuplicateResourceException(

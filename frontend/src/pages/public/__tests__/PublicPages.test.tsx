@@ -32,7 +32,7 @@ describe('Public Website Foundation (Phase 2)', () => {
     expect(screen.getByText('Special Veg Thali')).toBeInTheDocument();
 
     // Verify CTA buttons
-    expect(screen.getByRole('link', { name: /Explore Full Menu/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /Explore.*Menu/i })[0]).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Get Directions/i })).toBeInTheDocument();
   });
 

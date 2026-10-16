@@ -2,8 +2,34 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import publicMenuService from '../../services/publicMenuService';
 import type { PublicMenuCategory, PublicMenuItem, VegFilterOption } from '../../types/publicMenu';
-import { useCart } from '../../features/public/cart/CartContext';
 import { RESTAURANT_CONFIG } from '../../config/restaurantConfig';
+
+const categoryMeta: Record<string, { image: string; description: string }> = {
+  Thali: {
+    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80',
+    description: 'Our crown jewel feasts — served with unlimited authentic Tambda & Pandhra rassa, fresh jowar bhakri, and rice.',
+  },
+  Chicken: {
+    image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80',
+    description: 'Tender poultry slow-cooked in hand-roasted dry coconut, caramelized onions, and traditional Kolhapuri spices.',
+  },
+  Mutton: {
+    image: 'https://images.unsplash.com/photo-1545247181-516773cae7be?auto=format&fit=crop&w=800&q=80',
+    description: 'Fresh mutton simmered to perfection in authentic village-style masala with bold aroma and deep flavor.',
+  },
+  'Veg Main Course': {
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80',
+    description: 'Pure vegetarian specialties prepared with fresh dairy paneer, cashews, and comforting home-style dal.',
+  },
+  'Roti & Rice': {
+    image: 'https://images.unsplash.com/photo-1505253758473-96b3f5d121ff?auto=format&fit=crop&w=800&q=80',
+    description: 'Freshly patted cast-iron jowar bhakris, hot chapatis, tandoori rotis, and fragrant Indrayani rice.',
+  },
+  'Beverages & Extras': {
+    image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=800&q=80',
+    description: 'Handcrafted Solkadhi made with pure kokum and fresh coconut milk, spiced buttermilk, and crisp papad.',
+  },
+};
 
 export const MenuPage: React.FC = () => {
   const [categories, setCategories] = useState<PublicMenuCategory[]>([]);
@@ -17,8 +43,6 @@ export const MenuPage: React.FC = () => {
 
   const [vegFilter, setVegFilter] = useState<VegFilterOption>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-
-  const { items: cartItems, addItem, updateQuantity, openCart, totalItems, subtotal } = useCart();
 
   const loadMenu = async (force = false) => {
     try {
@@ -46,15 +70,6 @@ export const MenuPage: React.FC = () => {
     }
     setSearchParams(searchParams);
   };
-
-  // Map cart items by itemId for quick O(1) quantity check
-  const cartItemMap = useMemo(() => {
-    const map = new Map<number, number>();
-    for (const ci of cartItems) {
-      map.set(ci.menuItem.id, ci.quantity);
-    }
-    return map;
-  }, [cartItems]);
 
   // Filtered categories and their items
   const filteredCategories = useMemo(() => {
@@ -95,13 +110,13 @@ export const MenuPage: React.FC = () => {
       {/* Header Banner */}
       <div className="text-center max-w-3xl mx-auto space-y-3">
         <span className="text-xs font-semibold tracking-widest text-terracotta uppercase font-sans">
-          Kolhapuri Flavors &bull; Fresh Daily
+          Authentic Kolhapur Heritage &bull; Fresh Daily
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl font-bold text-forest-950">
-          Restaurant Menu &amp; Takeaway
+          Restaurant Food Menu
         </h1>
         <p className="text-sm sm:text-base text-pos-muted max-w-2xl mx-auto leading-relaxed">
-          Order authentic Kolhapuri thalis, chicken &amp; mutton specialties, and pure-veg delights for takeaway pickup.
+          Explore our complete selection of authentic Kolhapuri thalis, chicken &amp; mutton specialties, pure vegetarian curries, and freshly roasted bhakris. Available for family dine-in and takeaway at our Ispurli counter.
         </p>
       </div>
 
@@ -219,7 +234,7 @@ export const MenuPage: React.FC = () => {
               <div className="h-6 bg-stone-200 rounded w-1/4" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-24 bg-stone-100 rounded-xl" />
+                  <div key={i} className="h-28 bg-stone-100 rounded-xl" />
                 ))}
               </div>
             </div>
@@ -256,11 +271,11 @@ export const MenuPage: React.FC = () => {
           <div>
             <h3 className="font-serif font-bold text-lg text-stone-800">Menu Currently Updating</h3>
             <p className="text-xs text-stone-500 mt-1 leading-relaxed">
-              Our kitchen is preparing today's fresh menu. You can call our takeaway desk directly at{' '}
+              Our kitchen is preparing today&apos;s fresh menu. You can call our desk directly at{' '}
               <a href={`tel:${RESTAURANT_CONFIG.contact.phonePrimary}`} className="font-semibold text-forest-900 underline">
                 {RESTAURANT_CONFIG.contact.phoneDisplay}
               </a>{' '}
-              to place your takeaway order.
+              for inquiries.
             </p>
           </div>
           <button
@@ -299,186 +314,162 @@ export const MenuPage: React.FC = () => {
         </div>
       ) : (
         /* Categories and Items List */
-        <div className="space-y-10">
+        <div className="space-y-12">
           <div className="text-xs text-stone-500 font-medium">
             Showing {totalFilteredDishes} {totalFilteredDishes === 1 ? 'dish' : 'dishes'}
           </div>
 
-          {filteredCategories.map((category) => (
-            <section
-              key={category.id}
-              className="bg-white rounded-2xl border border-pos-border p-5 sm:p-7 shadow-subtle space-y-6"
-            >
-              <div className="flex items-center justify-between border-b border-pos-border/80 pb-3">
-                <h2 className="font-serif text-xl sm:text-2xl font-bold text-forest-950">
-                  {category.name}
-                </h2>
-                <span className="text-xs text-pos-muted font-medium">
-                  {category.items.length} {category.items.length === 1 ? 'item' : 'items'}
-                </span>
-              </div>
+          {filteredCategories.map((category) => {
+            const meta = categoryMeta[category.name];
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {category.items.map((item: PublicMenuItem) => {
-                  const qty = cartItemMap.get(item.id) || 0;
+            return (
+              <section
+                key={category.id}
+                className="bg-white rounded-2xl border border-pos-border shadow-subtle overflow-hidden"
+              >
+                {/* Category Header with Authentic Culinary Photo */}
+                <div className="relative h-44 sm:h-52 bg-forest-900 overflow-hidden">
+                  {meta?.image && (
+                    <img
+                      src={meta.image}
+                      alt={category.name}
+                      className="w-full h-full object-cover opacity-45 mix-blend-overlay scale-105"
+                      loading="lazy"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7 flex flex-col justify-end">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[11px] font-semibold tracking-widest text-terracotta-300 uppercase font-sans">
+                          Kolhapuri Specialty
+                        </span>
+                        <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                          {category.name}
+                        </h2>
+                      </div>
+                      <span className="px-3 py-1 rounded-full bg-forest-800/80 border border-forest-700/60 text-xs font-semibold text-terracotta-200 backdrop-blur-sm">
+                        {category.items.length} {category.items.length === 1 ? 'dish' : 'dishes'}
+                      </span>
+                    </div>
+                    {meta?.description && (
+                      <p className="text-xs sm:text-sm text-forest-200 mt-1 max-w-2xl font-sans line-clamp-2">
+                        {meta.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-                  return (
-                    <div
-                      key={item.id}
-                      className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
-                        item.available
-                          ? 'border-pos-border hover:border-forest-300 hover:shadow-xs bg-ivory-50/30'
-                          : 'border-stone-200 bg-stone-50/60 opacity-60'
-                      }`}
-                    >
-                      <div className="space-y-2">
-                        {/* Top info row */}
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-start gap-2.5">
-                            {/* Veg / Non-Veg Indicator */}
-                            <span
-                              className={`inline-flex items-center justify-center w-4 h-4 border rounded-sm mt-0.5 flex-shrink-0 ${
-                                item.isVeg
-                                  ? 'border-emerald-600 bg-white'
-                                  : 'border-amber-800 bg-white'
-                              }`}
-                              title={item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
-                            >
+                {/* Dishes Grid */}
+                <div className="p-5 sm:p-7">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                    {category.items.map((item: PublicMenuItem) => (
+                      <div
+                        key={item.id}
+                        className={`p-4 sm:p-5 rounded-xl border transition-all flex flex-col justify-between ${
+                          item.available
+                            ? 'border-pos-border hover:border-forest-400 hover:shadow-xs bg-ivory-50/40'
+                            : 'border-stone-200 bg-stone-50/60 opacity-60'
+                        }`}
+                      >
+                        <div className="space-y-2.5">
+                          {/* Dish header & price */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-2.5">
+                              {/* Veg / Non-Veg Indicator */}
                               <span
-                                className={`w-2 h-2 rounded-full ${
-                                  item.isVeg ? 'bg-emerald-600' : 'bg-amber-800'
-                                }`}
-                              />
-                            </span>
-                            <div>
-                              <h3 className="font-semibold text-stone-900 text-sm sm:text-base leading-snug">
-                                {item.name}
-                              </h3>
-                              <span className="text-xs text-pos-muted">
-                                {item.categoryName}
+                                className={`inline-flex items-center justify-center w-4 h-4 border rounded-sm mt-0.5 flex-shrink-0 ${
+                                  item.isVeg
+                                    ? 'border-emerald-600 bg-white'
+                                    : 'border-amber-800 bg-white'
+                                  }`}
+                                title={item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
+                              >
+                                <span
+                                  className={`w-2 h-2 rounded-full ${
+                                    item.isVeg ? 'bg-emerald-600' : 'bg-amber-800'
+                                  }`}
+                                />
                               </span>
+                              <div>
+                                <h3 className="font-serif font-bold text-stone-900 text-base leading-snug">
+                                  {item.name}
+                                </h3>
+                                <span className="text-[11px] text-pos-muted font-sans">
+                                  {item.categoryName}
+                                </span>
+                              </div>
                             </div>
+
+                            <span className="font-serif font-bold text-forest-900 text-base whitespace-nowrap bg-white px-3 py-1 rounded-lg border border-pos-border shadow-2xs">
+                              ₹{item.price.toFixed(2)}
+                            </span>
                           </div>
 
-                          <span className="font-semibold text-forest-950 text-sm sm:text-base whitespace-nowrap bg-white px-2.5 py-1 rounded-md border border-pos-border shadow-2xs">
-                            ₹{item.price.toFixed(2)}
-                          </span>
-                        </div>
-
-                        {item.description && (
-                          <p className="text-xs text-stone-600 line-clamp-2 pl-6.5">
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Bottom action row */}
-                      <div className="pt-3 mt-3 border-t border-pos-border/40 flex items-center justify-between">
-                        <div>
-                          {!item.available ? (
-                            <span className="text-xs text-stone-500 font-medium italic">
-                              Currently Unavailable
-                            </span>
+                          {item.description ? (
+                            <p className="text-xs text-stone-600 line-clamp-2 pl-6.5 leading-relaxed">
+                              {item.description}
+                            </p>
                           ) : (
-                            <span className="text-[11px] text-emerald-700 font-medium flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                              <span>Fresh &amp; Available</span>
-                            </span>
+                            <p className="text-xs text-stone-500 pl-6.5 leading-relaxed italic">
+                              Prepared fresh with traditional home-ground Kolhapuri spices.
+                            </p>
                           )}
                         </div>
 
-                        {item.available && (
+                        {/* Dish availability & dining note */}
+                        <div className="pt-3 mt-3 border-t border-pos-border/50 flex items-center justify-between text-xs">
                           <div>
-                            {qty === 0 ? (
-                              <button
-                                type="button"
-                                onClick={() => addItem(item, 1)}
-                                className="px-3.5 py-1.5 rounded-lg bg-forest-900 text-white text-xs font-semibold hover:bg-forest-800 transition-colors shadow-2xs flex items-center gap-1.5 active:scale-95"
-                                aria-label={`Add ${item.name} to cart`}
-                              >
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                </svg>
-                                <span>Add to Cart</span>
-                              </button>
+                            {!item.available ? (
+                              <span className="text-stone-400 font-medium italic">
+                                Currently Unavailable
+                              </span>
                             ) : (
-                              <div className="flex items-center border border-forest-700 rounded-lg bg-forest-50 overflow-hidden shadow-2xs">
-                                <button
-                                  type="button"
-                                  onClick={() => updateQuantity(item.id, qty - 1)}
-                                  className="px-2.5 py-1 text-forest-900 hover:bg-forest-100 font-bold text-xs"
-                                  aria-label={`Decrease quantity of ${item.name}`}
-                                >
-                                  -
-                                </button>
-                                <span className="px-2.5 py-1 text-xs font-bold text-forest-950 bg-white">
-                                  {qty}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => updateQuantity(item.id, qty + 1)}
-                                  className="px-2.5 py-1 text-forest-900 hover:bg-forest-100 font-bold text-xs"
-                                  aria-label={`Increase quantity of ${item.name}`}
-                                >
-                                  +
-                                </button>
-                              </div>
+                              <span className="text-emerald-700 font-medium flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                <span>Fresh Today</span>
+                              </span>
                             )}
                           </div>
-                        )}
+                          <span className="text-[11px] text-stone-500 font-medium">
+                            Dine-in &amp; Counter Parcel
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          ))}
+                    ))}
+                  </div>
+                </div>
+              </section>
+            );
+          })}
         </div>
       )}
 
-      {/* Floating Bottom Cart Bar for Quick Access */}
-      {totalItems > 0 && (
-        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-8 sm:w-96 z-30">
-          <div className="bg-forest-950 text-white p-3.5 rounded-2xl shadow-elevated border border-forest-800 flex items-center justify-between backdrop-blur-md">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-forest-800 flex items-center justify-center text-amber-300">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-forest-300 font-medium">
-                  {totalItems} {totalItems === 1 ? 'item' : 'items'} in takeaway cart
-                </p>
-                <p className="text-sm font-bold text-white font-serif">
-                  Subtotal: ₹{subtotal.toFixed(2)}
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={openCart}
-              className="px-4 py-2 rounded-xl bg-terracotta text-white text-xs font-semibold hover:bg-terracotta-600 transition-colors shadow-sm flex items-center gap-1.5"
-            >
-              <span>View Cart</span>
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+      {/* Restaurant Visiting & Dining Notice */}
+      <div className="bg-white rounded-2xl border border-pos-border p-6 sm:p-8 text-center space-y-3 max-w-2xl mx-auto shadow-subtle">
+        <h3 className="font-serif text-lg font-bold text-forest-950">
+          {RESTAURANT_CONFIG.name} &bull; Authentic Dining &amp; Counter Parcel
+        </h3>
+        <p className="text-xs sm:text-sm text-pos-muted leading-relaxed">
+          Every dish is prepared fresh daily using heritage recipes and authentic spices in Ispurli. For table reservations, bulk parcel takeaway, or special preparations, please call our counter directly or visit us.
+        </p>
+        <div className="pt-2 flex flex-wrap justify-center gap-4 text-xs font-semibold">
+          <a
+            href={`tel:${RESTAURANT_CONFIG.contact.phonePrimary}`}
+            className="text-forest-900 hover:text-terracotta underline decoration-forest-400 underline-offset-4"
+          >
+            📞 Counter: {RESTAURANT_CONFIG.contact.phoneDisplay}
+          </a>
+          <span className="text-stone-300">|</span>
+          <a
+            href={RESTAURANT_CONFIG.location.googleMapsDirectionsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-forest-900 hover:text-terracotta underline decoration-forest-400 underline-offset-4"
+          >
+            📍 Get Directions (Ispurli, Kolhapur)
+          </a>
         </div>
-      )}
-
-      {/* Restaurant Takeaway Notice */}
-      <div className="bg-ivory-200/60 rounded-2xl border border-pos-border p-6 text-center space-y-2 text-xs text-pos-muted max-w-2xl mx-auto">
-        <p className="font-semibold text-stone-800 text-sm">
-          {RESTAURANT_CONFIG.name} &bull; Pure Takeaway Ordering
-        </p>
-        <p>
-          Online orders placed here are prepared fresh for parcel pickup at our counter in Ispurli.
-          Payment is completed upon pickup. For large family gatherings or special preparations, please call us directly.
-        </p>
       </div>
     </div>
   );

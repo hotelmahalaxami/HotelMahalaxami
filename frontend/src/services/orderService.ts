@@ -55,26 +55,5 @@ export const orderService = {
     const response = await apiClient.delete<ApiResponse<Order>>(`/api/v1/orders/${orderId}`);
     return response.data.data;
   },
-
-  async getWebsiteOrders(status: 'PENDING' | 'ACCEPTED' | 'REJECTED' = 'PENDING'): Promise<Order[]> {
-    const response = await apiClient.get<ApiResponse<Order[]>>('/api/v1/orders/website', {
-      params: { status },
-    });
-    return response.data.data;
-  },
-
-  async getPendingWebsiteOrdersCount(): Promise<number> {
-    const response = await apiClient.get<ApiResponse<{ pendingCount: number }>>('/api/v1/orders/website/pending-count');
-    return response.data.data.pendingCount;
-  },
-
-  async acceptWebsiteOrder(id: number): Promise<Order> {
-    const response = await apiClient.post<ApiResponse<Order>>(`/api/v1/orders/website/${id}/accept`);
-    return response.data.data;
-  },
-
-  async rejectWebsiteOrder(id: number, reason?: string): Promise<Order> {
-    const response = await apiClient.post<ApiResponse<Order>>(`/api/v1/orders/website/${id}/reject`, { reason });
-    return response.data.data;
-  },
 };
+
