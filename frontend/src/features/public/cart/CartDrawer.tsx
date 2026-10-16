@@ -57,18 +57,18 @@ export const CartDrawer: React.FC = () => {
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-md bg-stone-50 shadow-2xl flex flex-col border-l border-amber-900/10">
           {/* Header */}
-          <div className="p-5 bg-primary-900 text-stone-100 flex items-center justify-between shadow-sm">
+          <div className="p-5 bg-forest-950 text-white flex items-center justify-between shadow-sm">
             <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 rounded-full bg-primary-800 flex items-center justify-center text-amber-300">
+              <div className="w-10 h-10 rounded-full bg-forest-800 flex items-center justify-center text-terracotta-300 shadow-xs">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
               </div>
               <div>
-                <h2 id="cart-heading" className="text-lg font-serif font-semibold text-stone-100">
+                <h2 id="cart-heading" className="text-lg font-serif font-bold text-white tracking-wide">
                   Takeaway Cart
                 </h2>
-                <p className="text-xs text-stone-300">
+                <p className="text-xs text-forest-200">
                   {totalItems} {totalItems === 1 ? 'item' : 'items'} selected
                 </p>
               </div>
@@ -77,7 +77,7 @@ export const CartDrawer: React.FC = () => {
             <button
               type="button"
               onClick={closeCart}
-              className="p-2 text-stone-300 hover:text-white rounded-lg hover:bg-primary-800 transition-colors"
+              className="p-2 text-forest-200 hover:text-white rounded-lg hover:bg-forest-800 transition-colors"
               aria-label="Close cart"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +90,7 @@ export const CartDrawer: React.FC = () => {
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {items.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
-                <div className="w-20 h-20 rounded-full bg-primary-50 text-primary-800 flex items-center justify-center border border-primary-200">
+                <div className="w-20 h-20 rounded-full bg-forest-50 text-forest-800 flex items-center justify-center border border-forest-200">
                   <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
@@ -107,7 +107,7 @@ export const CartDrawer: React.FC = () => {
                     closeCart();
                     navigate('/menu');
                   }}
-                  className="mt-2 px-6 py-2.5 bg-primary-800 text-stone-100 rounded-lg hover:bg-primary-700 text-sm font-medium transition-colors shadow-sm"
+                  className="mt-2 px-6 py-2.5 bg-forest-900 text-white rounded-lg hover:bg-forest-800 text-sm font-medium transition-colors shadow-sm"
                 >
                   Explore Menu
                 </button>
@@ -206,7 +206,7 @@ export const CartDrawer: React.FC = () => {
                 </div>
                 <div className="pt-2 border-t border-stone-200 flex items-center justify-between">
                   <span className="font-serif font-semibold text-base text-stone-900">Est. Total</span>
-                  <span className="font-bold text-lg text-primary-800">₹{subtotal.toFixed(2)}</span>
+                  <span className="font-bold text-xl text-forest-900">₹{subtotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -217,22 +217,22 @@ export const CartDrawer: React.FC = () => {
                 <span>Takeaway pickup order. Live prices and items are re-verified by server upon submission.</span>
               </div>
 
-              <div className="flex space-x-3">
+              <div className="flex space-x-3 pt-1">
                 <button
                   type="button"
                   onClick={clearCart}
-                  className="px-4 py-2.5 text-xs font-medium text-stone-600 hover:text-stone-900 border border-stone-300 rounded-lg hover:bg-stone-50 transition-colors"
+                  className="px-4 py-3 text-xs font-semibold text-stone-600 hover:text-stone-900 border border-stone-300 rounded-xl hover:bg-stone-100 transition-colors"
                 >
                   Clear
                 </button>
                 <button
                   type="button"
                   onClick={handleCheckoutClick}
-                  className="flex-1 px-5 py-2.5 bg-primary-800 text-stone-100 rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors shadow-sm flex items-center justify-center space-x-2"
+                  className="flex-1 px-5 py-3 bg-forest-900 text-white rounded-xl hover:bg-forest-800 font-semibold text-sm transition-all shadow-md flex items-center justify-center space-x-2 active:scale-98 cursor-pointer"
                 >
                   <span>Proceed to Checkout</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                 </button>
               </div>
