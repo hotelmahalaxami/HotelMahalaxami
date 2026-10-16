@@ -100,10 +100,13 @@ const ContactPage: React.FC = () => {
             </h3>
             <div className="space-y-3 text-sm text-pos-text">
               <div>
-                <p className="text-xs text-pos-muted">Restaurant Desk</p>
-                <p className="font-semibold text-forest-900 text-base mt-0.5">
+                <p className="text-xs text-pos-muted">Owner &amp; Restaurant Desk</p>
+                <a
+                  href={`tel:${RESTAURANT_CONFIG.contact.phonePrimary}`}
+                  className="font-bold text-forest-900 text-lg mt-0.5 hover:text-terracotta transition-colors block"
+                >
                   {RESTAURANT_CONFIG.contact.phoneDisplay}
-                </p>
+                </a>
               </div>
               <div>
                 <p className="text-xs text-pos-muted">Email Inquiries</p>
@@ -127,7 +130,7 @@ const ContactPage: React.FC = () => {
             Traveling on the Radhanagari Road?
           </h3>
           <p className="text-forest-200 text-sm max-w-xl">
-            Stop by for authentic Kolhapuri meals, chilled Solkadhi, and warm hospitality. Open 7 days a week.
+            Stop by for authentic Kolhapuri meals, chilled Solkadhi, and warm hospitality. Open Sunday to Friday (Saturday Closed).
           </p>
         </div>
         <a

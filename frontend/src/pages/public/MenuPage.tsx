@@ -31,6 +31,67 @@ const categoryMeta: Record<string, { image: string; description: string }> = {
   },
 };
 
+const dishImages: Record<string, string> = {
+  // Thalis
+  'Special Mahalaxmi Thali': 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=700&q=80',
+  'Special Veg Thali': 'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=700&q=80',
+  'Special Mutton Thali': 'https://images.unsplash.com/photo-1545247181-516773cae7be?auto=format&fit=crop&w=700&q=80',
+  'Special Chicken Thali': 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=700&q=80',
+  'Egg Thali': 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=700&q=80',
+
+  // Chicken Specialties
+  'Chicken Fry': 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=700&q=80',
+  'Chicken Masala': 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=700&q=80',
+  'Butter Chicken': 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=700&q=80',
+  'Chicken Sukka': 'https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?auto=format&fit=crop&w=700&q=80',
+  'Chicken Handi (Half)': 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=700&q=80',
+  'Chicken Handi (Full)': 'https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=700&q=80',
+
+  // Mutton Delicacies
+  'Mutton Masala': 'https://images.unsplash.com/photo-1545247181-516773cae7be?auto=format&fit=crop&w=700&q=80',
+  'Mutton Fry': 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=700&q=80',
+  'Mutton Sukka': 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=700&q=80',
+  'Mutton Handi (Half)': 'https://images.unsplash.com/photo-1545247181-516773cae7be?auto=format&fit=crop&w=700&q=80',
+  'Mutton Handi (Full)': 'https://images.unsplash.com/photo-1545247181-516773cae7be?auto=format&fit=crop&w=700&q=80',
+
+  // Pure Veg Delicacies
+  'Paneer Masala': 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=700&q=80',
+  'Paneer Butter Masala': 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=700&q=80',
+  'Kaju Curry': 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=700&q=80',
+  'Mix Veg': 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=700&q=80',
+  'Dal Tadka': 'https://images.unsplash.com/photo-1546833998-877b37c2e5c4?auto=format&fit=crop&w=700&q=80',
+  'Shev Bhaji': 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=700&q=80',
+
+  // Fresh Breads & Rice
+  'Chapati': 'https://images.unsplash.com/photo-1505253758473-96b3f5d121ff?auto=format&fit=crop&w=700&q=80',
+  'Jowar Bhakri': 'https://images.unsplash.com/photo-1626074353765-517a681e40be?auto=format&fit=crop&w=700&q=80',
+  'Tandoori Roti': 'https://images.unsplash.com/photo-1533450718592-29d45635f0a9?auto=format&fit=crop&w=700&q=80',
+  'Butter Naan': 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=700&q=80',
+  'Jeera Rice': 'https://images.unsplash.com/photo-1516714435131-44d6b64dc6a2?auto=format&fit=crop&w=700&q=80',
+  'Masala Bhat': 'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=700&q=80',
+  'Indrayani Rice (Plate)': 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=700&q=80',
+
+  // Beverages & Extras
+  'Solkadhi': 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=700&q=80',
+  'Masala Taak (Buttermilk)': 'https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=700&q=80',
+  'Mineral Water (1L)': 'https://images.unsplash.com/photo-1523362628745-0c100150b504?auto=format&fit=crop&w=700&q=80',
+  'Roasted Papad': 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=700&q=80',
+};
+
+const getDishImage = (itemName: string, categoryName: string): string => {
+  if (dishImages[itemName]) {
+    return dishImages[itemName];
+  }
+  // Case-insensitive or partial match
+  const lowerName = itemName.toLowerCase();
+  for (const [key, url] of Object.entries(dishImages)) {
+    if (lowerName.includes(key.toLowerCase()) || key.toLowerCase().includes(lowerName)) {
+      return url;
+    }
+  }
+  return categoryMeta[categoryName]?.image || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=700&q=80';
+};
+
 export const MenuPage: React.FC = () => {
   const [categories, setCategories] = useState<PublicMenuCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -362,76 +423,91 @@ export const MenuPage: React.FC = () => {
 
                 {/* Dishes Grid */}
                 <div className="p-5 sm:p-7">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {category.items.map((item: PublicMenuItem) => (
                       <div
                         key={item.id}
-                        className={`p-4 sm:p-5 rounded-xl border transition-all flex flex-col justify-between ${
+                        className={`group bg-white rounded-2xl border transition-all duration-300 overflow-hidden flex flex-col justify-between hover:-translate-y-1.5 hover:shadow-elevated ${
                           item.available
-                            ? 'border-pos-border hover:border-forest-400 hover:shadow-xs bg-ivory-50/40'
-                            : 'border-stone-200 bg-stone-50/60 opacity-60'
+                            ? 'border-pos-border hover:border-forest-400'
+                            : 'border-stone-200 bg-stone-50/70 opacity-60'
                         }`}
                       >
-                        <div className="space-y-2.5">
-                          {/* Dish header & price */}
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-start gap-2.5">
-                              {/* Veg / Non-Veg Indicator */}
+                        <div>
+                          {/* Dish Photo with Zoom & Badges */}
+                          <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-forest-950/10">
+                            <img
+                              src={getDishImage(item.name, category.name)}
+                              alt={item.name}
+                              loading="lazy"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-forest-950/80 via-transparent to-black/25" />
+
+                            {/* Top Floating Badges: Veg/Non-Veg Indicator & Price Tag */}
+                            <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
                               <span
-                                className={`inline-flex items-center justify-center w-4 h-4 border rounded-sm mt-0.5 flex-shrink-0 ${
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold backdrop-blur-md shadow-xs ${
                                   item.isVeg
-                                    ? 'border-emerald-600 bg-white'
-                                    : 'border-amber-800 bg-white'
-                                  }`}
+                                    ? 'bg-emerald-950/85 text-emerald-300 border border-emerald-500/40'
+                                    : 'bg-stone-950/85 text-amber-300 border border-amber-500/40'
+                                }`}
                                 title={item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
                               >
                                 <span
                                   className={`w-2 h-2 rounded-full ${
-                                    item.isVeg ? 'bg-emerald-600' : 'bg-amber-800'
+                                    item.isVeg ? 'bg-emerald-400' : 'bg-red-500'
                                   }`}
                                 />
+                                <span>{item.isVeg ? 'Pure Veg' : 'Non-Veg'}</span>
                               </span>
-                              <div>
-                                <h3 className="font-serif font-bold text-stone-900 text-base leading-snug">
-                                  {item.name}
-                                </h3>
-                                <span className="text-[11px] text-pos-muted font-sans">
-                                  {item.categoryName}
-                                </span>
-                              </div>
+
+                              <span className="font-serif font-bold text-white text-base bg-forest-950/85 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
+                                ₹{item.price.toFixed(2)}
+                              </span>
                             </div>
 
-                            <span className="font-serif font-bold text-forest-900 text-base whitespace-nowrap bg-white px-3 py-1 rounded-lg border border-pos-border shadow-2xs">
-                              ₹{item.price.toFixed(2)}
-                            </span>
+                            {/* Bottom category badge inside image */}
+                            <div className="absolute bottom-2.5 left-3">
+                              <span className="text-[11px] font-semibold text-terracotta-200 uppercase tracking-wider drop-shadow-md">
+                                {item.categoryName}
+                              </span>
+                            </div>
                           </div>
 
-                          {item.description ? (
-                            <p className="text-xs text-stone-600 line-clamp-2 pl-6.5 leading-relaxed">
-                              {item.description}
-                            </p>
-                          ) : (
-                            <p className="text-xs text-stone-500 pl-6.5 leading-relaxed italic">
-                              Prepared fresh with traditional home-ground Kolhapuri spices.
-                            </p>
-                          )}
+                          {/* Dish Information */}
+                          <div className="p-4 sm:p-5 space-y-2">
+                            <h3 className="font-serif font-bold text-stone-900 text-lg group-hover:text-forest-900 transition-colors leading-snug">
+                              {item.name}
+                            </h3>
+
+                            {item.description ? (
+                              <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
+                                {item.description}
+                              </p>
+                            ) : (
+                              <p className="text-xs text-stone-500 leading-relaxed italic">
+                                Prepared fresh with authentic home-ground Kolhapuri spices.
+                              </p>
+                            )}
+                          </div>
                         </div>
 
-                        {/* Dish availability & dining note */}
-                        <div className="pt-3 mt-3 border-t border-pos-border/50 flex items-center justify-between text-xs">
+                        {/* Bottom Footer: Fresh status & Service */}
+                        <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-3 border-t border-pos-border/60 flex items-center justify-between text-xs">
                           <div>
                             {!item.available ? (
                               <span className="text-stone-400 font-medium italic">
                                 Currently Unavailable
                               </span>
                             ) : (
-                              <span className="text-emerald-700 font-medium flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              <span className="text-emerald-700 font-semibold flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                 <span>Fresh Today</span>
                               </span>
                             )}
                           </div>
-                          <span className="text-[11px] text-stone-500 font-medium">
+                          <span className="text-[11px] text-stone-500 font-medium bg-ivory-100 px-2 py-0.5 rounded">
                             Dine-in &amp; Counter Parcel
                           </span>
                         </div>

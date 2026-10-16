@@ -92,6 +92,31 @@ const config: Config = {
         card: '0 4px 6px -1px rgba(21, 61, 53, 0.05), 0 2px 4px -2px rgba(21, 61, 53, 0.05)',
         elevated: '0 10px 15px -3px rgba(21, 61, 53, 0.08), 0 4px 6px -4px rgba(21, 61, 53, 0.04)',
       },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        pulseSlow: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+      },
+      animation: {
+        float: 'float 3.5s ease-in-out infinite',
+        'float-delayed': 'float 3.5s ease-in-out 1.5s infinite',
+        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'pulse-slow': 'pulseSlow 3s ease-in-out infinite',
+        shimmer: 'shimmer 2.5s infinite linear',
+      },
     },
   },
   plugins: [],

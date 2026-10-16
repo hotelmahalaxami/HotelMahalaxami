@@ -62,24 +62,24 @@ export const RESTAURANT_CONFIG: RestaurantProfile = {
       'https://www.google.com/maps/search/?api=1&query=Hotel+Mahalaxmi+Ispurli+Kolhapur',
   },
   contact: {
-    phonePrimary: '+91 98XXX XXXXX', // [Configurable Placeholder]
-    whatsapp: '+91 98XXX XXXXX', // [Configurable Placeholder]
-    email: 'contact@hotelmahalaxmi-ispurli.com', // [Configurable Placeholder]
-    phoneDisplay: '+91 98XXX XXXXX [Restaurant Desk]',
-    isConfigured: false,
+    phonePrimary: '+919665290123',
+    whatsapp: '+919665290123',
+    email: 'hotelmahalaxmi.ispurli@gmail.com',
+    phoneDisplay: '+91 96652 90123',
+    isConfigured: true,
   },
   timing: {
     lunchHours: '11:30 AM – 3:45 PM',
     dinnerHours: '7:00 PM – 11:00 PM',
-    daysOpen: 'Open All 7 Days',
+    daysOpen: 'Sunday to Friday (Saturday Closed)',
     fullWeeklySchedule: [
+      { day: 'Sunday', hours: '11:30 AM – 3:45 PM, 7:00 PM – 11:00 PM' },
       { day: 'Monday', hours: '11:30 AM – 3:45 PM, 7:00 PM – 11:00 PM' },
       { day: 'Tuesday', hours: '11:30 AM – 3:45 PM, 7:00 PM – 11:00 PM' },
       { day: 'Wednesday', hours: '11:30 AM – 3:45 PM, 7:00 PM – 11:00 PM' },
       { day: 'Thursday', hours: '11:30 AM – 3:45 PM, 7:00 PM – 11:00 PM' },
       { day: 'Friday', hours: '11:30 AM – 3:45 PM, 7:00 PM – 11:00 PM' },
-      { day: 'Saturday', hours: '11:30 AM – 3:45 PM, 7:00 PM – 11:00 PM' },
-      { day: 'Sunday', hours: '11:30 AM – 3:45 PM, 7:00 PM – 11:00 PM' },
+      { day: 'Saturday', hours: 'Closed (Weekly Off)' },
     ],
   },
   highlights: [

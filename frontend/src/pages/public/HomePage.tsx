@@ -9,6 +9,7 @@ interface FeaturedDish {
   description: string;
   isVeg: boolean;
   tag: string;
+  image: string;
 }
 
 const featuredDishes: FeaturedDish[] = [
@@ -19,6 +20,7 @@ const featuredDishes: FeaturedDish[] = [
     description: 'Our crown jewel. A generous spread featuring authentic mutton preparation, flavorful chicken sukka, fragrant tambda & pandhra rassa, jowar bhakri, and indrayani rice.',
     isVeg: false,
     tag: "Chef's Recommendation",
+    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=700&q=80',
   },
   {
     name: 'Special Mutton Thali',
@@ -27,6 +29,7 @@ const featuredDishes: FeaturedDish[] = [
     description: 'Tender mutton cooked to perfection in aromatic traditional ground masala, paired with fresh bhakri, unlimited authentic rassa, and spiced rice.',
     isVeg: false,
     tag: 'Authentic Favorite',
+    image: 'https://images.unsplash.com/photo-1545247181-516773cae7be?auto=format&fit=crop&w=700&q=80',
   },
   {
     name: 'Special Veg Thali',
@@ -35,6 +38,7 @@ const featuredDishes: FeaturedDish[] = [
     description: 'Freshly prepared seasonal vegetable curry, comforting dal tadka, hot jowar bhakri or chapati, fragrant rice, roasted papad, and crushed thecha.',
     isVeg: true,
     tag: 'Vegetarian Delight',
+    image: 'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=700&q=80',
   },
   {
     name: 'Chicken Sukka & Handi',
@@ -43,6 +47,7 @@ const featuredDishes: FeaturedDish[] = [
     description: 'Succulent chicken tossed in caramelized onions, dry coconut, and authentic home-roasted spices. Available in single portions or half/full handi.',
     isVeg: false,
     tag: 'Crowd Favorite',
+    image: 'https://images.unsplash.com/photo-1610057099431-d73a1c9d2f2f?auto=format&fit=crop&w=700&q=80',
   },
   {
     name: 'Special Chicken Thali',
@@ -51,6 +56,7 @@ const featuredDishes: FeaturedDish[] = [
     description: 'Flavorsome chicken curry, aromatic sukka, unlimited authentic rassa, choice of fresh bhakri or chapati, and steaming rice.',
     isVeg: false,
     tag: 'Best Seller',
+    image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=700&q=80',
   },
   {
     name: 'Solkadhi & Masala Taak',
@@ -59,6 +65,7 @@ const featuredDishes: FeaturedDish[] = [
     description: 'Handcrafted Solkadhi made with pure kokum and fresh coconut milk, and spiced buttermilk seasoned with fresh coriander, ginger, and cumin.',
     isVeg: true,
     tag: 'Essential Accompaniment',
+    image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=700&q=80',
   },
 ];
 
@@ -73,63 +80,111 @@ const HomePage: React.FC = () => {
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-terracotta/20 blur-3xl pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            {/* Top pill badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest-800/80 border border-forest-700/60 text-xs font-medium text-terracotta-200 mb-6 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-terracotta animate-pulse" />
-              <span>Authentic Kolhapuri Heritage &bull; Ispurli, Maharashtra</span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7">
+              {/* Top pill badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest-800/80 border border-forest-700/60 text-xs font-medium text-terracotta-200 mb-6 backdrop-blur-sm shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-terracotta animate-pulse" />
+                <span>Authentic Kolhapuri Heritage &bull; Ispurli, Maharashtra</span>
+              </div>
+
+              {/* Main Headline */}
+              <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight sm:leading-none">
+                Taste the True Essence of{' '}
+                <span className="text-terracotta-300 italic font-normal">Kolhapuri Hospitality</span>
+              </h1>
+
+              {/* Introduction paragraph */}
+              <p className="mt-6 text-base sm:text-lg text-forest-200 leading-relaxed max-w-2xl font-sans">
+                Welcome to <strong>{RESTAURANT_CONFIG.name}</strong>. Renowned for our signature mutton and chicken thalis, aromatic Tambda and Pandhra rassa, freshly baked jowar bhakri, and wholesome vegetarian feasts in Ispurli.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <Link
+                  to="/menu"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg bg-terracotta text-white font-medium text-sm shadow-md hover:bg-terracotta-600 transition-all hover:scale-102 focus:outline-none focus:ring-2 focus:ring-terracotta-400 active:scale-98"
+                >
+                  <span>Explore Our Menu</span>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </Link>
+
+                <a
+                  href={RESTAURANT_CONFIG.location.googleMapsDirectionsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg bg-forest-800/80 border border-forest-700/80 text-white font-medium text-sm hover:bg-forest-800 hover:border-forest-600 transition-all hover:scale-102 focus:outline-none focus:ring-2 focus:ring-forest-500"
+                >
+                  <svg className="w-4 h-4 text-terracotta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span>Get Directions (Ispurli)</span>
+                </a>
+              </div>
+
+              {/* Quick Badges below Hero */}
+              <div className="mt-12 pt-8 border-t border-forest-800/80 grid grid-cols-2 sm:grid-cols-3 gap-6">
+                <div>
+                  <p className="font-serif text-xl sm:text-2xl font-bold text-white">100%</p>
+                  <p className="text-xs text-forest-300 mt-0.5">Authentic Kolhapur Recipes</p>
+                </div>
+                <div>
+                  <p className="font-serif text-xl sm:text-2xl font-bold text-white">Daily Fresh</p>
+                  <p className="text-xs text-forest-300 mt-0.5">Tambda &amp; Pandhra Rassa</p>
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <p className="font-serif text-xl sm:text-2xl font-bold text-white">Family Dining</p>
+                  <p className="text-xs text-forest-300 mt-0.5">&amp; Hot Parcel Takeaway</p>
+                </div>
+              </div>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight sm:leading-none">
-              Taste the True Essence of{' '}
-              <span className="text-terracotta-300 italic font-normal">Kolhapuri Hospitality</span>
-            </h1>
+            {/* Hero Right Visual Column with floating badges */}
+            <div className="lg:col-span-5 relative hidden lg:block">
+              <div className="relative mx-auto max-w-md">
+                {/* Ambient glow */}
+                <div className="absolute -inset-1.5 bg-gradient-to-r from-terracotta/30 to-emerald-700/30 rounded-3xl blur-2xl opacity-70 pointer-events-none" />
 
-            {/* Introduction paragraph */}
-            <p className="mt-6 text-base sm:text-lg text-forest-200 leading-relaxed max-w-2xl font-sans">
-              Welcome to <strong>{RESTAURANT_CONFIG.name}</strong>. Renowned for our signature mutton and chicken thalis, aromatic Tambda and Pandhra rassa, freshly baked jowar bhakri, and wholesome vegetarian feasts in Ispurli.
-            </p>
+                {/* Main Hero Dish Card */}
+                <div className="relative rounded-2xl overflow-hidden border border-forest-700/70 bg-forest-950 shadow-2xl group">
+                  <img
+                    src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80"
+                    alt="Authentic Special Mahalaxmi Thali"
+                    className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950/90 via-forest-950/20 to-black/30" />
 
-            {/* Action Buttons */}
-            <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <Link
-                to="/menu"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg bg-terracotta text-white font-medium text-sm shadow-md hover:bg-terracotta-600 transition-all focus:outline-none focus:ring-2 focus:ring-terracotta-400 active:scale-98"
-              >
-                <span>Explore Our Menu</span>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </Link>
+                  {/* Overlay text in hero image */}
+                  <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-forest-900/90 backdrop-blur-md border border-forest-700/60 shadow-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[11px] font-semibold text-terracotta-300 uppercase tracking-widest font-sans">
+                          Royal Non-Veg Feast
+                        </span>
+                        <h3 className="font-serif font-bold text-white text-lg">
+                          Mahalaxmi Royal Thali Feast
+                        </h3>
+                      </div>
+                      <span className="font-serif font-bold text-white text-lg bg-terracotta/90 px-3 py-1 rounded-lg shadow-sm">
+                        ₹350
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-              <a
-                href={RESTAURANT_CONFIG.location.googleMapsDirectionsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg bg-forest-800/80 border border-forest-700/80 text-white font-medium text-sm hover:bg-forest-800 hover:border-forest-600 transition-all focus:outline-none focus:ring-2 focus:ring-forest-500"
-              >
-                <svg className="w-4 h-4 text-terracotta-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>Get Directions (Ispurli)</span>
-              </a>
-            </div>
+                {/* Floating animated badges */}
+                <div className="absolute -top-4 -right-4 bg-white/95 backdrop-blur-md text-forest-950 px-3.5 py-2 rounded-xl shadow-lg border border-pos-border animate-float text-xs font-semibold flex items-center gap-2">
+                  <span className="text-base">🌶️</span>
+                  <span>Stone-Ground Masala</span>
+                </div>
 
-            {/* Quick Badges below Hero */}
-            <div className="mt-12 pt-8 border-t border-forest-800/80 grid grid-cols-2 sm:grid-cols-3 gap-6">
-              <div>
-                <p className="font-serif text-xl sm:text-2xl font-bold text-white">100%</p>
-                <p className="text-xs text-forest-300 mt-0.5">Authentic Kolhapur Recipes</p>
-              </div>
-              <div>
-                <p className="font-serif text-xl sm:text-2xl font-bold text-white">Daily Fresh</p>
-                <p className="text-xs text-forest-300 mt-0.5">Tambda &amp; Pandhra Rassa</p>
-              </div>
-              <div className="col-span-2 sm:col-span-1">
-                <p className="font-serif text-xl sm:text-2xl font-bold text-white">Family Dining</p>
-                <p className="text-xs text-forest-300 mt-0.5">&amp; Hot Parcel Takeaway</p>
+                <div className="absolute -bottom-4 -left-4 bg-white/95 backdrop-blur-md text-forest-950 px-3.5 py-2 rounded-xl shadow-lg border border-pos-border animate-float-delayed text-xs font-semibold flex items-center gap-2">
+                  <span className="text-base">🍲</span>
+                  <span>Tambda &amp; Pandhra Rassa</span>
+                </div>
               </div>
             </div>
           </div>
@@ -154,42 +209,61 @@ const HomePage: React.FC = () => {
           {featuredDishes.map((dish) => (
             <div
               key={dish.name}
-              className="bg-white rounded-xl border border-pos-border p-6 shadow-subtle hover:shadow-card transition-all flex flex-col justify-between group"
+              className="bg-white rounded-2xl border border-pos-border overflow-hidden shadow-subtle hover:shadow-elevated hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between group"
             >
               <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-terracotta bg-terracotta-50 px-2 py-0.5 rounded">
-                    {dish.tag}
-                  </span>
-                  <span
-                    className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                      dish.isVeg ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
-                    }`}
-                  >
-                    {dish.isVeg ? '● Veg' : '▲ Non-Veg'}
-                  </span>
+                {/* Dish Photo with Zoom */}
+                <div className="relative h-48 w-full overflow-hidden bg-forest-950/10">
+                  <img
+                    src={dish.image}
+                    alt={dish.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-950/80 via-transparent to-black/25" />
+
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-white bg-forest-950/85 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 shadow-xs">
+                      {dish.tag}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold backdrop-blur-md shadow-xs ${
+                        dish.isVeg
+                          ? 'bg-emerald-950/85 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-stone-950/85 text-amber-300 border border-amber-500/40'
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${dish.isVeg ? 'bg-emerald-400' : 'bg-red-500'}`} />
+                      <span>{dish.isVeg ? 'Pure Veg' : 'Non-Veg'}</span>
+                    </span>
+                  </div>
+
+                  <div className="absolute bottom-2.5 left-3">
+                    <span className="font-serif font-bold text-white text-base bg-forest-950/85 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
+                      {dish.price}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-baseline justify-between gap-2 mb-1">
-                  <h3 className="font-serif text-lg font-bold text-forest-950 group-hover:text-forest-800 transition-colors">
+                {/* Content */}
+                <div className="p-5 sm:p-6 space-y-2">
+                  <h3 className="font-serif text-xl font-bold text-forest-950 group-hover:text-forest-800 transition-colors leading-snug">
                     {dish.name}
                   </h3>
-                  <span className="font-sans font-bold text-forest-900 text-base">
-                    {dish.price}
-                  </span>
+                  <p className="text-xs text-terracotta font-semibold uppercase tracking-wider">
+                    {dish.category}
+                  </p>
+                  <p className="text-xs text-pos-muted leading-relaxed">
+                    {dish.description}
+                  </p>
                 </div>
-
-                <p className="text-xs text-terracotta-600 font-medium mb-3">
-                  {dish.category}
-                </p>
-
-                <p className="text-xs text-pos-muted leading-relaxed">
-                  {dish.description}
-                </p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-pos-border/60 flex items-center justify-between">
-                <span className="text-[11px] text-pos-muted">Freshly Prepared</span>
+              <div className="px-5 pb-5 sm:px-6 sm:pb-6 pt-3 border-t border-pos-border/60 flex items-center justify-between">
+                <span className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Fresh Today</span>
+                </span>
                 <Link
                   to="/menu"
                   className="text-xs font-semibold text-forest-800 hover:text-terracotta transition-colors flex items-center gap-1"

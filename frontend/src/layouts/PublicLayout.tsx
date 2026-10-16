@@ -280,10 +280,13 @@ const PublicLayoutContent: React.FC = () => {
                   {RESTAURANT_CONFIG.location.fullAddress}
                 </p>
                 <div>
-                  <p className="font-medium text-white">Contact Desk</p>
-                  <p className="text-terracotta-300 font-medium mt-0.5">
-                    {RESTAURANT_CONFIG.contact.phoneDisplay}
-                  </p>
+                  <p className="font-medium text-white">Owner &amp; Direct Contact</p>
+                  <a
+                    href={`tel:${RESTAURANT_CONFIG.contact.phonePrimary}`}
+                    className="text-terracotta-300 font-bold text-sm mt-0.5 block hover:underline"
+                  >
+                    📞 {RESTAURANT_CONFIG.contact.phoneDisplay}
+                  </a>
                 </div>
                 <div className="pt-2">
                   <a
